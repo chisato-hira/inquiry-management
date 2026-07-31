@@ -1,0 +1,1035 @@
+<title>問い合わせ管理アプリ 画面プロトタイプ</title>
+<style>
+  :root{
+    --bg:#F4F6F9;
+    --surface:#FFFFFF;
+    --surface-2:#FAFBFD;
+    --border:#DFE3EA;
+    --text:#1B2130;
+    --text-muted:#5B6472;
+    --text-faint:#687390;
+    --accent:#2A5CDB;
+    --accent-strong:#1E46B0;
+    --accent-soft:#E8EEFC;
+    --accent-contrast:#FFFFFF;
+    --status-open:#B45309;
+    --status-open-bg:#FEF3E2;
+    --status-progress:#1D4ED8;
+    --status-progress-bg:#E8EEFC;
+    --status-done:#15803D;
+    --status-done-bg:#E7F5EC;
+    --priority-high:#DC2626;
+    --priority-mid:#C2760A;
+    --priority-low:#556170;
+    --priority-none:#8993A4;
+    --overdue-border:#DC2626;
+    --overdue-tint:#FDEDEC;
+    /* category identity colors (used consistently for donut + card tags) */
+    --cat-plan:#2A5CDB;   --cat-plan-bg:#E5ECFB;
+    --cat-howto:#0E7A70;  --cat-howto-bg:#DFF3F0;
+    --cat-cancel:#B5720A; --cat-cancel-bg:#FBEBD3;
+    --cat-bug:#C23A3A;    --cat-bug-bg:#FBE3E1;
+    --cat-other:#5F4EBE;  --cat-other-bg:#EAE6FB;
+    /* vivid, colorblind-safe (Okabe-Ito) hues for chart fills only — kept separate from the
+       darker text-safe tokens above so labels/tags stay legible while charts stay vivid */
+    --status-open-chart:#E69F00; --status-progress-chart:#0072B2; --status-done-chart:#009E73;
+    --cat-plan-chart:#0072B2; --cat-howto-chart:#009E73; --cat-cancel-chart:#E69F00;
+    --cat-bug-chart:#D55E00; --cat-other-chart:#CC79A7;
+    /* person-avatar identity colors, independent of status/priority/category meaning */
+    --av-1-bg:#E2E9FB; --av-1-fg:#2A5CDB;
+    --av-2-bg:#DDF3F0; --av-2-fg:#0E7A70;
+    --av-3-bg:#FBEBD3; --av-3-fg:#B5720A;
+    --av-4-bg:#FBE1E6; --av-4-fg:#C23A56;
+    --av-5-bg:#EAE5FB; --av-5-fg:#5F4EBE;
+    --av-6-bg:#E1F3E1; --av-6-fg:#20793A;
+    --shadow-sm:0 1px 2px rgba(20,25,40,.06);
+    --shadow-lg:0 1px 2px rgba(20,25,40,.06), 0 16px 32px -16px rgba(20,25,40,.28);
+    --radius:12px;
+    --radius-sm:7px;
+    --font: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", "Segoe UI", Roboto, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#12161F; --surface:#1A1F2B; --surface-2:#202634; --border:#2B3242;
+      --text:#E7EAF0; --text-muted:#9099AA; --text-faint:#7E88A0;
+      --accent:#6C8CF0; --accent-strong:#87A2F5; --accent-soft:#22305A; --accent-contrast:#0C1220;
+      --status-open:#F0B457; --status-open-bg:#3A2A12;
+      --status-progress:#7FA0F5; --status-progress-bg:#1E2C4E;
+      --status-done:#5FCB86; --status-done-bg:#163825;
+      --priority-high:#F0716B; --priority-mid:#E3A857; --priority-low:#9CA7B8; --priority-none:#6C7688;
+      --overdue-border:#F0716B; --overdue-tint:#3A1D1D;
+      --cat-plan:#8FA8F2;  --cat-plan-bg:#243156;
+      --cat-howto:#4FC7BA; --cat-howto-bg:#173A36;
+      --cat-cancel:#E3AE5E; --cat-cancel-bg:#3B2C14;
+      --cat-bug:#F0877E;   --cat-bug-bg:#3A1E1E;
+      --cat-other:#B3A4F5; --cat-other-bg:#2A2350;
+      --status-open-chart:#F0B93D; --status-progress-chart:#4FA8DB; --status-done-chart:#3FC7A0;
+      --cat-plan-chart:#4FA8DB; --cat-howto-chart:#3FC7A0; --cat-cancel-chart:#F0B93D;
+      --cat-bug-chart:#F0854A; --cat-other-chart:#E0A0CC;
+      --av-1-bg:#243156; --av-1-fg:#8FA8F2;
+      --av-2-bg:#173A36; --av-2-fg:#4FC7BA;
+      --av-3-bg:#3B2C14; --av-3-fg:#E3AE5E;
+      --av-4-bg:#3A1E27; --av-4-fg:#F0879B;
+      --av-5-bg:#2A2350; --av-5-fg:#B3A4F5;
+      --av-6-bg:#1C3323; --av-6-fg:#6FCB86;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+      --shadow-lg:0 1px 2px rgba(0,0,0,.4), 0 16px 32px -16px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12161F; --surface:#1A1F2B; --surface-2:#202634; --border:#2B3242;
+    --text:#E7EAF0; --text-muted:#9099AA; --text-faint:#7E88A0;
+    --accent:#6C8CF0; --accent-strong:#87A2F5; --accent-soft:#22305A; --accent-contrast:#0C1220;
+    --status-open:#F0B457; --status-open-bg:#3A2A12;
+    --status-progress:#7FA0F5; --status-progress-bg:#1E2C4E;
+    --status-done:#5FCB86; --status-done-bg:#163825;
+    --priority-high:#F0716B; --priority-mid:#E3A857; --priority-low:#9CA7B8; --priority-none:#6C7688;
+    --overdue-border:#F0716B; --overdue-tint:#3A1D1D;
+    --cat-plan:#8FA8F2;  --cat-plan-bg:#243156;
+    --cat-howto:#4FC7BA; --cat-howto-bg:#173A36;
+    --cat-cancel:#E3AE5E; --cat-cancel-bg:#3B2C14;
+    --cat-bug:#F0877E;   --cat-bug-bg:#3A1E1E;
+    --cat-other:#B3A4F5; --cat-other-bg:#2A2350;
+    --status-open-chart:#F0B93D; --status-progress-chart:#4FA8DB; --status-done-chart:#3FC7A0;
+    --cat-plan-chart:#4FA8DB; --cat-howto-chart:#3FC7A0; --cat-cancel-chart:#F0B93D;
+    --cat-bug-chart:#F0854A; --cat-other-chart:#E0A0CC;
+    --av-1-bg:#243156; --av-1-fg:#8FA8F2;
+    --av-2-bg:#173A36; --av-2-fg:#4FC7BA;
+    --av-3-bg:#3B2C14; --av-3-fg:#E3AE5E;
+    --av-4-bg:#3A1E27; --av-4-fg:#F0879B;
+    --av-5-bg:#2A2350; --av-5-fg:#B3A4F5;
+    --av-6-bg:#1C3323; --av-6-fg:#6FCB86;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 1px 2px rgba(0,0,0,.4), 0 16px 32px -16px rgba(0,0,0,.7);
+  }
+  :root[data-theme="light"]{
+    --bg:#F4F6F9; --surface:#FFFFFF; --surface-2:#FAFBFD; --border:#DFE3EA;
+    --text:#1B2130; --text-muted:#5B6472; --text-faint:#687390;
+    --accent:#2A5CDB; --accent-strong:#1E46B0; --accent-soft:#E8EEFC; --accent-contrast:#FFFFFF;
+    --status-open:#B45309; --status-open-bg:#FEF3E2;
+    --status-progress:#1D4ED8; --status-progress-bg:#E8EEFC;
+    --status-done:#15803D; --status-done-bg:#E7F5EC;
+    --priority-high:#DC2626; --priority-mid:#C2760A; --priority-low:#556170; --priority-none:#8993A4;
+    --overdue-border:#DC2626; --overdue-tint:#FDEDEC;
+    --cat-plan:#2A5CDB;   --cat-plan-bg:#E5ECFB;
+    --cat-howto:#0E7A70;  --cat-howto-bg:#DFF3F0;
+    --cat-cancel:#B5720A; --cat-cancel-bg:#FBEBD3;
+    --cat-bug:#C23A3A;    --cat-bug-bg:#FBE3E1;
+    --cat-other:#5F4EBE;  --cat-other-bg:#EAE6FB;
+    --status-open-chart:#E69F00; --status-progress-chart:#0072B2; --status-done-chart:#009E73;
+    --cat-plan-chart:#0072B2; --cat-howto-chart:#009E73; --cat-cancel-chart:#E69F00;
+    --cat-bug-chart:#D55E00; --cat-other-chart:#CC79A7;
+    --av-1-bg:#E2E9FB; --av-1-fg:#2A5CDB;
+    --av-2-bg:#DDF3F0; --av-2-fg:#0E7A70;
+    --av-3-bg:#FBEBD3; --av-3-fg:#B5720A;
+    --av-4-bg:#FBE1E6; --av-4-fg:#C23A56;
+    --av-5-bg:#EAE5FB; --av-5-fg:#5F4EBE;
+    --av-6-bg:#E1F3E1; --av-6-fg:#20793A;
+    --shadow-sm:0 1px 2px rgba(20,25,40,.06); --shadow-lg:0 1px 2px rgba(20,25,40,.06), 0 16px 32px -16px rgba(20,25,40,.28);
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--font);
+    font-size:15px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{ text-wrap:balance; margin:0; }
+  button, input, select, textarea{ font-family:inherit; font-size:inherit; color:inherit; }
+  button{ cursor:pointer; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  /* ---------- review bar (meta navigation, not part of the app) ---------- */
+  .review-bar{
+    position:sticky; top:0; z-index:80;
+    display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px;
+    padding:12px 20px; background:var(--surface-2); border-bottom:1px dashed var(--border);
+  }
+  .review-bar__label{ font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-faint); white-space:nowrap; }
+  .review-bar__title{ font-weight:700; font-size:14px; margin-right:4px; white-space:nowrap; }
+  .review-bar__tabs{ display:flex; gap:6px; flex-wrap:wrap; }
+  .tab-btn{
+    padding:6px 13px; border-radius:999px; border:1px solid var(--border);
+    background:var(--surface); color:var(--text-muted); font-size:13px; font-weight:500;
+    transition:background .12s, color .12s, border-color .12s;
+  }
+  .tab-btn:hover{ border-color:var(--accent); color:var(--text); }
+  .tab-btn[aria-selected="true"]{ background:var(--accent); border-color:var(--accent); color:var(--accent-contrast); }
+  .review-bar__spacer{ flex:1 1 auto; }
+  .review-bar__toggle{ display:flex; align-items:center; gap:8px; }
+  .review-bar__toggle .tab-btn{ font-size:12px; padding:5px 11px; }
+
+  /* ---------- stage / device frame ---------- */
+  .stage{ display:flex; justify-content:center; padding:36px 16px 96px; }
+  .device-frame{
+    display:none; width:100%; max-width:1100px;
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    box-shadow:var(--shadow-lg); overflow:hidden;
+  }
+  .device-frame.is-active{ display:block; }
+  @media (prefers-reduced-motion: no-preference){
+    .device-frame.is-active{ animation:frame-in .22s ease; }
+  }
+  @keyframes frame-in{ from{ opacity:0; transform:translateY(6px); } to{ opacity:1; transform:none; } }
+  .device-frame--narrow{ max-width:390px; }
+  .device-chrome{ display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--surface-2); border-bottom:1px solid var(--border); }
+  .device-chrome__dots{ display:flex; gap:5px; flex:none; }
+  .device-chrome__dots span{ width:8px; height:8px; border-radius:50%; background:var(--border); display:block; }
+  .device-chrome__url{
+    font-family:var(--font-mono); font-size:11.5px; color:var(--text-faint);
+    background:var(--surface); border:1px solid var(--border); border-radius:6px;
+    padding:4px 10px; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+  /* ---------- form / login / complete screens ---------- */
+  .screen-pad{ padding:40px clamp(20px,5vw,56px); }
+  .screen-pad--narrow{ max-width:480px; margin:0 auto; }
+  .screen-title{ font-size:20px; font-weight:700; margin-bottom:28px; }
+  .field{ margin-bottom:20px; }
+  .field:last-of-type{ margin-bottom:0; }
+  .field label{ display:flex; align-items:baseline; gap:6px; font-size:13px; font-weight:600; margin-bottom:7px; }
+  .field .req{ font-size:11px; font-weight:600; color:var(--priority-high); }
+  .field .opt{ font-size:11px; font-weight:500; color:var(--text-faint); }
+  .field input[type="text"], .field input[type="email"], .field input[type="tel"], .field input[type="password"], .field select, .field textarea{
+    width:100%; padding:10px 12px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); color:var(--text);
+  }
+  .field textarea{ min-height:110px; resize:vertical; font-family:inherit; }
+  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--accent); }
+  .form-actions{ margin-top:30px; display:flex; justify-content:center; }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    padding:10px 22px; border-radius:999px; border:1px solid transparent;
+    font-size:14px; font-weight:600; transition:background .12s, border-color .12s, color .12s;
+  }
+  .btn-primary{ background:var(--accent); color:var(--accent-contrast); }
+  .btn-primary:hover{ background:var(--accent-strong); }
+  .btn-ghost{ background:transparent; border-color:var(--border); color:var(--text-muted); }
+  .btn-ghost:hover{ border-color:var(--accent); color:var(--text); }
+  .btn-block{ width:100%; }
+  .hint-note{ margin-top:10px; font-size:12px; color:var(--text-faint); }
+
+  .complete-wrap{ padding:96px 40px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:14px; }
+  .complete-icon{ width:52px; height:52px; border-radius:50%; background:var(--status-done-bg); color:var(--status-done); display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:6px; }
+  .complete-wrap h2{ font-size:19px; }
+  .complete-wrap p{ color:var(--text-muted); font-size:14px; margin:0; }
+
+  .login-wrap{ padding:56px 40px; max-width:400px; margin:0 auto; }
+
+  /* ---------- avatars (shared: board + modal) ---------- */
+  .avatar{
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:700; flex:none; line-height:1;
+  }
+  .avatar-sm{ width:22px; height:22px; font-size:10.5px; }
+  .avatar-md{ width:26px; height:26px; font-size:11.5px; }
+  .avatar-lg{ width:46px; height:46px; font-size:17px; }
+
+  /* ---------- board ---------- */
+  .board-pad{ padding:24px clamp(16px,4vw,40px) 48px; }
+  .board-header{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; flex-wrap:wrap; }
+  .board-header h1{ font-size:19px; }
+  .board-header__user{ display:flex; align-items:center; gap:12px; font-size:13px; color:var(--text-muted); }
+  .board-header__user strong{ color:var(--text); font-weight:600; }
+
+  .stats-grid{ display:grid; grid-template-columns:1.15fr 1.15fr 1fr; gap:16px; margin-bottom:26px; align-items:stretch; }
+  .board--sp .stats-grid{ grid-template-columns:1fr; }
+  .stat-card{ background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; }
+  .stat-card h3{ font-size:12px; font-weight:700; letter-spacing:.02em; color:var(--text-muted); margin-bottom:14px; }
+
+  /* donut (status / category breakdown) */
+  .donut-wrap{ display:flex; align-items:center; gap:16px; }
+  .donut{ width:80px; height:80px; aspect-ratio:1; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; }
+  .donut-hole{ width:50px; height:50px; border-radius:50%; background:var(--surface-2); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .donut-total{ font-size:15px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1; }
+  .donut-total-label{ font-size:8.5px; color:var(--text-faint); margin-top:2px; }
+  .donut-legend{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:7px; font-size:12.5px; flex:1; min-width:0; }
+  .donut-legend li{ display:grid; grid-template-columns:8px 1fr 34px 38px; align-items:center; gap:8px; color:var(--text-muted); }
+  .donut-legend .dot{ width:8px; height:8px; border-radius:50%; }
+  .donut-legend .legend-label{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .donut-legend .legend-pct{ font-variant-numeric:tabular-nums; color:var(--text-faint); text-align:right; }
+  .donut-legend .legend-count{ font-weight:700; color:var(--text); font-variant-numeric:tabular-nums; text-align:right; }
+
+  .assignee-list{ display:flex; flex-direction:column; gap:10px; }
+  .assignee-row{ display:flex; align-items:center; justify-content:space-between; font-size:13px; }
+  .assignee-row .name{ display:flex; align-items:center; gap:9px; }
+  .assignee-row .count{ font-variant-numeric:tabular-nums; font-weight:700; }
+
+  .columns{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .board--sp .columns{ display:block; }
+  .column{ background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); padding:14px; min-height:120px; }
+  .column.is-dragover{ border-color:var(--accent); background:var(--accent-soft); }
+  .board--sp .column{ display:none; }
+  .board--sp .column.is-visible{ display:block; }
+  .column-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .column-head__title{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; }
+  .column-head__count{ font-size:11px; font-weight:700; color:var(--text-muted); background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:1px 8px; font-variant-numeric:tabular-nums; }
+  .sort-btn{ font-size:11.5px; font-weight:600; color:var(--text-muted); background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:4px 10px; }
+  .sort-btn[data-active="true"]{ color:var(--accent); border-color:var(--accent); background:var(--accent-soft); }
+  .column-select{ width:100%; margin-bottom:12px; padding:9px 10px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface); font-weight:600; font-size:13px; display:none; }
+  .board--sp .column-select{ display:block; }
+
+  .card-list{ display:flex; flex-direction:column; gap:10px; }
+  .card{
+    background:var(--surface); border:1px solid var(--border); border-left:1px solid var(--border);
+    border-radius:var(--radius-sm); padding:12px 13px 11px; cursor:pointer;
+    transition:box-shadow .12s, border-color .12s, transform .12s;
+  }
+  .card:hover{ box-shadow:var(--shadow-sm); border-color:var(--accent); }
+  .card:active{ transform:scale(.99); }
+  #boardRoot:not(.board--sp) .card{ cursor:grab; -webkit-user-select:none; user-select:none; }
+  .card.is-dragging{ opacity:.4; }
+  .card-ghost{ position:fixed; z-index:300; pointer-events:none; opacity:.92; box-shadow:var(--shadow-lg); cursor:grabbing; margin:0; }
+  .card-top{ display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+  .card-name{ font-weight:700; font-size:13.5px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .overdue-flag{ font-size:10px; font-weight:700; color:var(--overdue-border); white-space:nowrap; background:var(--overdue-tint); border-radius:999px; padding:2px 7px; }
+  .card-meta{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; margin-bottom:10px; }
+  .cat-tag{ display:inline-flex; align-items:center; font-size:10.5px; font-weight:700; border-radius:5px; padding:2px 7px; white-space:nowrap; }
+  .cat-tag.cat-plan{ color:var(--cat-plan); background:var(--cat-plan-bg); }
+  .cat-tag.cat-howto{ color:var(--cat-howto); background:var(--cat-howto-bg); }
+  .cat-tag.cat-cancel{ color:var(--cat-cancel); background:var(--cat-cancel-bg); }
+  .cat-tag.cat-bug{ color:var(--cat-bug); background:var(--cat-bug-bg); }
+  .cat-tag.cat-other{ color:var(--cat-other); background:var(--cat-other-bg); }
+  .priority-tag{ display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:var(--text-muted); }
+  .priority-tag .dot{ width:7px; height:7px; border-radius:50%; flex:none; }
+  .priority-tag.p-high{ color:var(--priority-high); }
+  .priority-tag.p-high .dot{ background:var(--priority-high); }
+  .priority-tag.p-mid{ color:var(--priority-mid); }
+  .priority-tag.p-mid .dot{ background:var(--priority-mid); }
+  .priority-tag.p-low{ color:var(--priority-low); }
+  .priority-tag.p-low .dot{ background:var(--priority-low); }
+  .priority-tag.p-none .dot{ background:var(--priority-none); }
+  .card-foot{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .card-assignee{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-muted); min-width:0; }
+  .card-assignee span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .card-assignee .avatar{ background:var(--surface-2); color:var(--text-faint); border:1px dashed var(--border); }
+  .card-status-select{ display:none; font-size:12px; padding:5px 8px; border-radius:6px; border:1px solid var(--border); background:var(--surface); font-weight:600; }
+  .board--sp .card-status-select{ display:block; width:100%; margin-top:9px; }
+
+  /* ---------- modal ---------- */
+  .modal-backdrop{ display:none; position:fixed; inset:0; background:rgba(15,18,26,.5); align-items:center; justify-content:center; padding:24px; z-index:100; }
+  .modal-backdrop.is-open{ display:flex; }
+  @media (prefers-reduced-motion: no-preference){
+    .modal-backdrop.is-open .modal{ animation:modal-in .18s ease; }
+  }
+  @keyframes modal-in{ from{ opacity:0; transform:translateY(8px) scale(.98); } to{ opacity:1; transform:none; } }
+  .modal{ width:100%; max-width:760px; max-height:88vh; overflow-y:auto; background:var(--surface); border-radius:16px; box-shadow:var(--shadow-lg); border:1px solid var(--border); }
+  .modal-head{ display:flex; align-items:center; justify-content:space-between; padding:16px 22px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface); z-index:1; }
+  .modal-head h2{ font-size:15px; color:var(--text-muted); font-weight:600; }
+  .modal-close-x{ background:none; border:none; font-size:18px; color:var(--text-faint); line-height:1; padding:4px; }
+  .modal-close-x:hover{ color:var(--text); }
+  .modal-body{ padding:22px; }
+  .modal-grid{ display:grid; grid-template-columns:1fr 236px; gap:26px; }
+
+  .customer-line{ display:flex; flex-wrap:wrap; gap:4px 14px; font-size:12.5px; color:var(--text-muted); margin-bottom:14px; }
+  .content-block{ background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:13px 15px; font-size:13.5px; white-space:pre-wrap; margin-bottom:22px; }
+
+  .history-title{ font-size:12px; font-weight:700; letter-spacing:.03em; color:var(--text-muted); text-transform:uppercase; margin-bottom:12px; padding-top:16px; border-top:1px solid var(--border); }
+  .history-list{ display:flex; flex-direction:column; gap:12px; margin-bottom:18px; }
+  .history-item{ font-size:13px; }
+  .history-item__meta{ display:flex; gap:8px; align-items:baseline; font-size:11.5px; color:var(--text-faint); margin-bottom:2px; font-variant-numeric:tabular-nums; }
+  .history-item__meta .author{ color:var(--accent); font-weight:700; }
+  .history-item--system .history-item__text{ color:var(--text-muted); }
+  .history-item--system .history-item__meta::before{ content:"●"; font-size:8px; color:var(--text-faint); }
+  .history-item--comment{ background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 13px; }
+
+  .comment-form{ display:flex; flex-direction:column; gap:8px; }
+  .comment-form textarea{ width:100%; min-height:64px; padding:9px 11px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); resize:vertical; font-family:inherit; }
+  .comment-form .btn{ align-self:flex-end; }
+
+  .modal-side{ display:flex; flex-direction:column; gap:16px; }
+  .side-identity{ display:flex; align-items:center; gap:12px; }
+  .side-id{ font-size:11px; color:var(--text-faint); font-variant-numeric:tabular-nums; }
+  .side-name{ font-weight:700; font-size:14.5px; }
+  .status-badge{
+    display:inline-flex; align-items:center; gap:6px; align-self:flex-start; font-size:12px; font-weight:700;
+    border-radius:999px; padding:5px 12px;
+  }
+  .status-badge .dot{ width:7px; height:7px; border-radius:50%; }
+  .status-badge.st-open{ color:var(--status-open); background:var(--status-open-bg); }
+  .status-badge.st-open .dot{ background:var(--status-open); }
+  .status-badge.st-progress{ color:var(--status-progress); background:var(--status-progress-bg); }
+  .status-badge.st-progress .dot{ background:var(--status-progress); }
+  .status-badge.st-done{ color:var(--status-done); background:var(--status-done-bg); }
+  .status-badge.st-done .dot{ background:var(--status-done); }
+
+  .side-field label{ display:block; font-size:11px; font-weight:700; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.02em; }
+  .side-field select{ width:100%; padding:9px 10px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg); font-weight:600; font-size:13px; }
+  .auto-badge{ display:block; font-size:10.5px; color:var(--accent); font-weight:600; margin-top:6px; }
+  .modal-foot{ display:flex; justify-content:flex-end; padding-top:18px; margin-top:18px; border-top:1px solid var(--border); }
+
+  @media (max-width:640px){
+    .modal-grid{ grid-template-columns:1fr; }
+    .modal-side{ flex-direction:row; flex-wrap:wrap; align-items:center; padding-bottom:16px; margin-bottom:4px; border-bottom:1px solid var(--border); }
+    .modal-side .side-field{ flex:1 1 120px; }
+  }
+</style>
+
+<header class="review-bar">
+  <span class="review-bar__label">プロトタイプ確認用</span>
+  <span class="review-bar__title">問い合わせ管理アプリ 画面プロトタイプ</span>
+  <nav class="review-bar__tabs" id="screenTabs" aria-label="画面切り替え">
+    <button class="tab-btn" data-screen="form">① フォーム</button>
+    <button class="tab-btn" data-screen="complete">② 送信完了</button>
+    <button class="tab-btn" data-screen="login">③ ログイン</button>
+    <button class="tab-btn" data-screen="board">④ ボード</button>
+    <button class="tab-btn" data-screen="detail">⑤ 詳細/編集</button>
+  </nav>
+  <div class="review-bar__spacer"></div>
+  <div class="review-bar__toggle" id="boardViewToggle" hidden>
+    <span class="review-bar__label">表示幅</span>
+    <button class="tab-btn" data-view="pc">PC</button>
+    <button class="tab-btn" data-view="sp">スマホ</button>
+  </div>
+</header>
+
+<main class="stage">
+
+  <!-- 問い合わせフォーム画面 -->
+  <section class="device-frame" data-frame="form">
+    <div class="device-chrome">
+      <div class="device-chrome__dots"><span></span><span></span><span></span></div>
+      <div class="device-chrome__url">inquiry-app.example.com/</div>
+    </div>
+    <div class="screen-pad">
+      <div class="screen-pad--narrow">
+        <h1 class="screen-title">お問い合わせフォーム</h1>
+        <form id="inquiryForm">
+          <div class="field">
+            <label for="f-name">氏名 <span class="req">必須</span></label>
+            <input id="f-name" type="text" required maxlength="255" placeholder="山田太郎">
+          </div>
+          <div class="field">
+            <label for="f-email">メールアドレス <span class="req">必須</span></label>
+            <input id="f-email" type="email" required maxlength="255" placeholder="yamada@example.com">
+          </div>
+          <div class="field">
+            <label for="f-tel">電話番号 <span class="opt">任意</span></label>
+            <input id="f-tel" type="tel" maxlength="20" placeholder="090-1234-5678">
+          </div>
+          <div class="field">
+            <label for="f-category">カテゴリ <span class="req">必須</span></label>
+            <select id="f-category" required>
+              <option value="" selected disabled>選択してください</option>
+              <option>料金プラン</option>
+              <option>使い方</option>
+              <option>解約</option>
+              <option>不具合</option>
+              <option>その他</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-content">お問い合わせ内容 <span class="req">必須</span></label>
+            <textarea id="f-content" required placeholder="お問い合わせ内容をご記入ください"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">送信する</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- 送信完了画面 -->
+  <section class="device-frame" data-frame="complete">
+    <div class="device-chrome">
+      <div class="device-chrome__dots"><span></span><span></span><span></span></div>
+      <div class="device-chrome__url">inquiry-app.example.com/thanks</div>
+    </div>
+    <div class="complete-wrap">
+      <div class="complete-icon">✓</div>
+      <h2>お問い合わせありがとうございました</h2>
+      <p>確認のご連絡までしばらくお待ちください</p>
+    </div>
+  </section>
+
+  <!-- スタッフログイン画面 -->
+  <section class="device-frame" data-frame="login">
+    <div class="device-chrome">
+      <div class="device-chrome__dots"><span></span><span></span><span></span></div>
+      <div class="device-chrome__url">inquiry-app.example.com/login</div>
+    </div>
+    <div class="login-wrap">
+      <h1 class="screen-title">スタッフログイン</h1>
+      <form id="loginForm">
+        <div class="field">
+          <label for="l-email">メールアドレス</label>
+          <input id="l-email" type="email" placeholder="tanaka@example.com" value="tanaka@example.com">
+        </div>
+        <div class="field">
+          <label for="l-pass">パスワード</label>
+          <input id="l-pass" type="password" placeholder="●●●●●●●●" value="password">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-block">ログイン</button>
+        </div>
+        <p class="hint-note">プロトタイプ確認用のため、任意の値でログインできます。</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ボード画面 -->
+  <section class="device-frame" data-frame="board">
+    <div class="device-chrome">
+      <div class="device-chrome__dots"><span></span><span></span><span></span></div>
+      <div class="device-chrome__url" id="boardUrl">inquiry-app.example.com/board</div>
+    </div>
+    <div class="board-pad" id="boardRoot">
+      <div class="board-header">
+        <h1>Inquiry Board</h1>
+        <div class="board-header__user">
+          <span>ログイン中: <strong id="loggedInName">田中</strong></span>
+          <button class="btn btn-ghost" id="logoutBtn">ログアウト</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>ステータス別件数</h3>
+          <div id="statusChart"></div>
+        </div>
+        <div class="stat-card">
+          <h3>カテゴリ別件数</h3>
+          <div id="categoryChart"></div>
+        </div>
+        <div class="stat-card">
+          <h3>担当者別・未完了件数</h3>
+          <div class="assignee-list" id="assigneeList"></div>
+        </div>
+      </div>
+
+      <select class="column-select" id="columnSelect">
+        <option value="未対応">未対応</option>
+        <option value="対応中">対応中</option>
+        <option value="完了">完了</option>
+      </select>
+
+      <div class="columns" id="columns"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- 問い合わせ詳細/編集モーダル -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">問い合わせ詳細</h2>
+      <button class="modal-close-x" id="modalCloseX" aria-label="閉じる">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="modal-main">
+          <div class="customer-line" id="modalMetaLine"></div>
+          <div class="content-block" id="modalContent"></div>
+
+          <div class="history-title">対応履歴・コメント</div>
+          <div class="history-list" id="historyList"></div>
+
+          <form class="comment-form" id="commentForm">
+            <textarea id="commentInput" placeholder="新しいコメントを入力..."></textarea>
+            <button type="submit" class="btn btn-primary">追加する</button>
+          </form>
+        </div>
+
+        <aside class="modal-side">
+          <div class="side-identity">
+            <span class="avatar avatar-lg" id="modalAvatar"></span>
+            <div>
+              <div class="side-name" id="modalName"></div>
+              <div class="side-id" id="modalIdText"></div>
+            </div>
+          </div>
+          <span class="status-badge" id="statusBadge"><span class="dot"></span><span id="statusBadgeText"></span></span>
+
+          <div class="side-field">
+            <label for="edit-status">ステータス</label>
+            <select id="edit-status">
+              <option>未対応</option>
+              <option>対応中</option>
+              <option>完了</option>
+            </select>
+          </div>
+          <div class="side-field">
+            <label for="edit-priority">優先度</label>
+            <select id="edit-priority">
+              <option>未設定</option>
+              <option>高</option>
+              <option>中</option>
+              <option>低</option>
+            </select>
+            <span class="auto-badge" id="autoBadge" hidden>キーワード検出により自動設定</span>
+          </div>
+          <div class="side-field">
+            <label for="edit-assignee">担当者</label>
+            <select id="edit-assignee">
+              <option value="">未割当</option>
+              <option>田中</option>
+              <option>佐藤</option>
+              <option>鈴木</option>
+            </select>
+          </div>
+        </aside>
+      </div>
+
+      <div class="modal-foot">
+        <button class="btn btn-ghost" id="modalCloseBtn">閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STAFF = ["田中","佐藤","鈴木"];
+  var CATEGORIES = ["料金プラン","使い方","解約","不具合","その他"];
+  var CATEGORY_CLASS = { "料金プラン":"cat-plan", "使い方":"cat-howto", "解約":"cat-cancel", "不具合":"cat-bug", "その他":"cat-other" };
+  var CATEGORY_VAR = { "料金プラン":"--cat-plan", "使い方":"--cat-howto", "解約":"--cat-cancel", "不具合":"--cat-bug", "その他":"--cat-other" };
+  var PRIORITY_ORDER = {"高":0,"中":1,"低":2,"未設定":3};
+  var PRIORITY_CLASS = { "高":"p-high", "中":"p-mid", "低":"p-low", "未設定":"p-none" };
+  var STATUS_CLASS = { "未対応":"st-open", "対応中":"st-progress", "完了":"st-done" };
+
+  function hoursAgo(h){ return new Date(Date.now() - h*3600*1000); }
+  function fixedAt(iso){ return new Date(iso); }
+  function fmt(d){
+    var p = function(n){ return String(n).padStart(2,"0"); };
+    return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes());
+  }
+  function avatarIndex(name){
+    var h = 0;
+    for(var i=0;i<name.length;i++){ h = (h*31 + name.charCodeAt(i)) >>> 0; }
+    return (h % 6) + 1;
+  }
+  function avatarHtml(name, size){
+    var idx = avatarIndex(name);
+    return '<span class="avatar '+size+'" style="background:var(--av-'+idx+'-bg);color:var(--av-'+idx+'-fg)">'+name.charAt(0)+'</span>';
+  }
+
+  var inquiries = [
+    { id:1, name:"山田太郎", email:"yamada@example.com", tel:"090-1234-5678", category:"料金プラン",
+      content:"月額プランの詳細を知りたいです。", status:"対応中", priority:"高", autoPriority:false, assignee:"田中",
+      createdAt: fixedAt("2026-07-30T09:00:00"),
+      history:[
+        {type:"system", text:"問い合わせを受け付けました", at:fixedAt("2026-07-30T09:00:00")},
+        {type:"system", text:"ステータスが未対応→対応中に変更されました", at:fixedAt("2026-07-30T10:00:00")},
+        {type:"comment", author:"田中", text:"お客様に電話で確認済み。来週対応予定", at:fixedAt("2026-07-30T10:15:00")}
+      ]},
+    { id:2, name:"佐藤花子", email:"sato-hanako@example.com", tel:"", category:"解約",
+      content:"他社サービスへの乗り換えを検討しており、解約の手続き方法を教えてください。", status:"対応中", priority:"中", autoPriority:false, assignee:"田中",
+      createdAt: hoursAgo(9),
+      history:[{type:"system", text:"問い合わせを受け付けました", at:hoursAgo(9)}]},
+    { id:3, name:"鈴木一郎", email:"suzuki@example.com", tel:"080-3333-4444", category:"使い方",
+      content:"アプリの使い方が分からず、CSVエクスポート機能の場所を教えてください。", status:"未対応", priority:"未設定", autoPriority:false, assignee:null,
+      createdAt: hoursAgo(2),
+      history:[{type:"system", text:"問い合わせを受け付けました", at:hoursAgo(2)}]},
+    { id:4, name:"高橋実", email:"takahashi@example.com", tel:"", category:"不具合",
+      content:"ログインできない状態が続いています。至急対応をお願いします。", status:"未対応", priority:"高", autoPriority:true, assignee:null,
+      createdAt: hoursAgo(30),
+      history:[
+        {type:"system", text:"問い合わせを受け付けました", at:hoursAgo(30)},
+        {type:"system", text:"キーワード検出により優先度を「高」に自動設定しました", at:hoursAgo(30)}
+      ]},
+    { id:5, name:"伊藤舞", email:"ito@example.com", tel:"070-5555-6666", category:"その他",
+      content:"資料請求について問い合わせたいです。", status:"完了", priority:"低", autoPriority:false, assignee:"佐藤",
+      createdAt: hoursAgo(72),
+      history:[
+        {type:"system", text:"問い合わせを受け付けました", at:hoursAgo(72)},
+        {type:"system", text:"ステータスが対応中→完了に変更されました", at:hoursAgo(50)}
+      ]},
+    { id:6, name:"渡辺健", email:"watanabe@example.com", tel:"", category:"料金プラン",
+      content:"プラン変更に伴う請求のタイミングを知りたいです。", status:"完了", priority:"未設定", autoPriority:false, assignee:"鈴木",
+      createdAt: hoursAgo(96),
+      history:[{type:"system", text:"問い合わせを受け付けました", at:hoursAgo(96)}]},
+    { id:7, name:"小林愛", email:"kobayashi@example.com", tel:"", category:"不具合",
+      content:"決済エラーが発生し、クレジットカードの登録ができません。", status:"対応中", priority:"高", autoPriority:true, assignee:"田中",
+      createdAt: hoursAgo(8),
+      history:[
+        {type:"system", text:"問い合わせを受け付けました", at:hoursAgo(8)},
+        {type:"system", text:"キーワード検出により優先度を「高」に自動設定しました", at:hoursAgo(8)}
+      ]},
+    { id:8, name:"山本翔", email:"yamamoto@example.com", tel:"", category:"使い方",
+      content:"初期設定の手順について教えてください。", status:"未対応", priority:"未設定", autoPriority:false, assignee:null,
+      createdAt: hoursAgo(6),
+      history:[{type:"system", text:"問い合わせを受け付けました", at:hoursAgo(6)}]},
+    { id:9, name:"中村さゆり", email:"nakamura@example.com", tel:"", category:"その他",
+      content:"請求書の宛名を変更したいです。", status:"未対応", priority:"未設定", autoPriority:false, assignee:null,
+      createdAt: hoursAgo(10),
+      history:[{type:"system", text:"問い合わせを受け付けました", at:hoursAgo(10)}]},
+    { id:10, name:"加藤大輔", email:"kato@example.com", tel:"", category:"解約",
+      content:"解約金額について確認したい。担当者から折り返し希望。", status:"対応中", priority:"中", autoPriority:false, assignee:"佐藤",
+      createdAt: hoursAgo(12),
+      history:[{type:"system", text:"問い合わせを受け付けました", at:hoursAgo(12)}]},
+    { id:11, name:"松本裕子", email:"matsumoto@example.com", tel:"", category:"料金プラン",
+      content:"年間プランの割引について教えてください。", status:"完了", priority:"未設定", autoPriority:false, assignee:"田中",
+      createdAt: hoursAgo(120),
+      history:[{type:"system", text:"問い合わせを受け付けました", at:hoursAgo(120)}]},
+    { id:12, name:"木村誠", email:"kimura@example.com", tel:"", category:"使い方",
+      content:"通知設定をオフにする方法を教えてください。", status:"完了", priority:"低", autoPriority:false, assignee:"鈴木",
+      createdAt: hoursAgo(144),
+      history:[{type:"system", text:"問い合わせを受け付けました", at:hoursAgo(144)}]},
+    { id:13, name:"清水真央", email:"shimizu@example.com", tel:"", category:"不具合",
+      content:"アプリがクラッシュしましたが、再起動後は改善しました。", status:"完了", priority:"中", autoPriority:false, assignee:"田中",
+      createdAt: hoursAgo(48),
+      history:[{type:"system", text:"問い合わせを受け付けました", at:hoursAgo(48)}]},
+    { id:14, name:"岡田恵", email:"okada@example.com", tel:"", category:"その他",
+      content:"退会後のデータ保持期間について教えてください。", status:"未対応", priority:"未設定", autoPriority:false, assignee:null,
+      createdAt: hoursAgo(1),
+      history:[{type:"system", text:"問い合わせを受け付けました", at:hoursAgo(1)}]}
+  ];
+
+  var STATUSES = ["未対応","対応中","完了"];
+
+  var state = {
+    screen: "form",
+    boardView: "pc",
+    loggedInStaff: "田中",
+    sortMode: {"未対応":"date","対応中":"date","完了":"date"},
+    spColumn: "未対応",
+    modalId: null,
+    suppressNextClick: false
+  };
+
+  // ---------- screen switching ----------
+  function setScreen(name){
+    state.screen = name;
+    document.querySelectorAll(".device-frame").forEach(function(f){
+      f.classList.toggle("is-active", f.dataset.frame === name);
+    });
+    document.querySelectorAll("#screenTabs .tab-btn").forEach(function(b){
+      b.setAttribute("aria-selected", String(b.dataset.screen === name));
+    });
+    document.getElementById("boardViewToggle").hidden = (name !== "board");
+    if(name === "board"){ renderBoard(); }
+  }
+
+  document.getElementById("screenTabs").addEventListener("click", function(e){
+    var btn = e.target.closest(".tab-btn");
+    if(!btn) return;
+    if(btn.dataset.screen === "detail"){
+      openModal(1);
+      setScreen("board");
+      return;
+    }
+    setScreen(btn.dataset.screen);
+  });
+
+  document.getElementById("boardViewToggle").addEventListener("click", function(e){
+    var btn = e.target.closest(".tab-btn");
+    if(!btn) return;
+    setBoardView(btn.dataset.view);
+  });
+
+  function setBoardView(view){
+    state.boardView = view;
+    var frame = document.querySelector('.device-frame[data-frame="board"]');
+    var root = document.getElementById("boardRoot");
+    frame.classList.toggle("device-frame--narrow", view === "sp");
+    root.classList.toggle("board--sp", view === "sp");
+    document.querySelectorAll('#boardViewToggle .tab-btn').forEach(function(b){
+      b.setAttribute("aria-selected", String(b.dataset.view === view));
+    });
+    document.getElementById("boardUrl").textContent = "inquiry-app.example.com/board" + (view === "sp" ? " (スマホ表示)" : "");
+    renderBoard();
+  }
+
+  // ---------- form ----------
+  document.getElementById("inquiryForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    setScreen("complete");
+    this.reset();
+  });
+
+  document.getElementById("loginForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    setScreen("board");
+  });
+
+  document.getElementById("logoutBtn").addEventListener("click", function(){
+    setScreen("login");
+  });
+
+  // ---------- board rendering ----------
+  function isOverdue(inq){
+    if(inq.status !== "未対応") return false;
+    return (Date.now() - inq.createdAt.getTime()) > 24*3600*1000;
+  }
+
+  function sortedInColumn(status){
+    var list = inquiries.filter(function(i){ return i.status === status; });
+    if(state.sortMode[status] === "priority"){
+      list.sort(function(a,b){ return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]; });
+    } else {
+      list.sort(function(a,b){ return a.createdAt - b.createdAt; });
+    }
+    return list;
+  }
+
+  function renderDonut(el, entries){
+    var total = entries.reduce(function(s,e){ return s+e.count; }, 0);
+    var cumulative = 0;
+    var stops = entries.map(function(e){
+      var start = total ? (cumulative/total*360) : 0;
+      cumulative += e.count;
+      var end = total ? (cumulative/total*360) : 0;
+      return e.color+' '+start.toFixed(1)+'deg '+end.toFixed(1)+'deg';
+    }).join(", ");
+    var gradient = total ? 'conic-gradient('+stops+')' : 'var(--border)';
+    el.innerHTML = '<div class="donut-wrap">'
+      + '<div class="donut" style="background:'+gradient+'"><div class="donut-hole"><span class="donut-total">'+total+'</span><span class="donut-total-label">件</span></div></div>'
+      + '<ul class="donut-legend">'+entries.map(function(e){
+          var pct = total ? Math.round(e.count/total*100) : 0;
+          return '<li><span class="dot" style="background:'+e.color+'"></span><span class="legend-label">'+e.label+'</span><span class="legend-pct">'+pct+'%</span><span class="legend-count">'+e.count+'件</span></li>';
+        }).join("")+'</ul>'
+      + '</div>';
+  }
+
+  function renderBoard(){
+    var statusColors = {"未対応":"var(--status-open-chart)","対応中":"var(--status-progress-chart)","完了":"var(--status-done-chart)"};
+    renderDonut(document.getElementById("statusChart"), STATUSES.map(function(s){
+      return { label:s, count: inquiries.filter(function(i){ return i.status === s; }).length, color: statusColors[s] };
+    }));
+
+    renderDonut(document.getElementById("categoryChart"), CATEGORIES.map(function(c){
+      return { label:c, count: inquiries.filter(function(i){ return i.category === c; }).length, color:"var("+CATEGORY_VAR[c]+"-chart)" };
+    }));
+
+    var assigneeEl = document.getElementById("assigneeList");
+    assigneeEl.innerHTML = STAFF.map(function(s){
+      var count = inquiries.filter(function(i){ return i.assignee === s && (i.status === "未対応" || i.status === "対応中"); }).length;
+      return '<div class="assignee-row"><span class="name">'+avatarHtml(s,"avatar-sm")+s+'</span><span class="count">'+count+'</span></div>';
+    }).join("");
+
+    var columnsEl = document.getElementById("columns");
+    columnsEl.innerHTML = STATUSES.map(function(status){
+      var list = sortedInColumn(status);
+      var cardsHtml = list.map(function(inq){ return cardHtml(inq); }).join("") || '<p style="color:var(--text-faint);font-size:12.5px;padding:8px 2px;">対象の問い合わせはありません</p>';
+      return '<div class="column'+(status===state.spColumn?" is-visible":"")+'" data-status="'+status+'">'
+        + '<div class="column-head">'
+        +   '<span class="column-head__title">'+status+' <span class="column-head__count">'+list.length+'</span></span>'
+        +   '<button class="sort-btn" data-sort-col="'+status+'" data-active="'+(state.sortMode[status]==="priority")+'">優先度順</button>'
+        + '</div>'
+        + '<div class="card-list" data-drop-status="'+status+'">'+cardsHtml+'</div>'
+        + '</div>';
+    }).join("");
+
+    document.getElementById("columnSelect").value = state.spColumn;
+
+    columnsEl.querySelectorAll(".card").forEach(function(cardEl){
+      var id = Number(cardEl.dataset.id);
+      cardEl.addEventListener("click", function(e){
+        if(state.suppressNextClick){ state.suppressNextClick = false; return; }
+        if(e.target.closest(".card-status-select")) return;
+        openModal(id);
+      });
+      cardEl.addEventListener("mousedown", function(e){ startCardDrag(e, cardEl, id); });
+      var sel = cardEl.querySelector(".card-status-select");
+      if(sel){
+        sel.addEventListener("click", function(e){ e.stopPropagation(); });
+        sel.addEventListener("change", function(e){
+          e.stopPropagation();
+          changeStatus(id, sel.value);
+        });
+      }
+    });
+
+    columnsEl.querySelectorAll(".sort-btn").forEach(function(b){
+      b.addEventListener("click", function(){
+        var col = b.dataset.sortCol;
+        state.sortMode[col] = state.sortMode[col] === "priority" ? "date" : "priority";
+        renderBoard();
+      });
+    });
+  }
+
+  function cardHtml(inq){
+    var overdue = isOverdue(inq);
+    var stripe = "";
+    if(overdue){ stripe = "border-left-width:4px;border-left-color:var(--overdue-border);"; }
+    else if(inq.priority === "高" || inq.priority === "中" || inq.priority === "低"){
+      stripe = "border-left-width:4px;border-left-color:var(--priority-"+({"高":"high","中":"mid","低":"low"}[inq.priority])+");";
+    }
+    var pCls = PRIORITY_CLASS[inq.priority];
+    return '<div class="card" data-id="'+inq.id+'" style="'+stripe+'">'
+      + '<div class="card-top">'+avatarHtml(inq.name,"avatar-sm")+'<span class="card-name">'+inq.name+'</span>'+(overdue?'<span class="overdue-flag">24h以上未対応</span>':'')+'</div>'
+      + '<div class="card-meta">'
+      +   '<span class="cat-tag '+CATEGORY_CLASS[inq.category]+'">'+inq.category+'</span>'
+      +   '<span class="priority-tag '+pCls+'"><span class="dot"></span>優先度 '+inq.priority+'</span>'
+      + '</div>'
+      + '<div class="card-foot"><span class="card-assignee">'
+      +   (inq.assignee ? avatarHtml(inq.assignee,"avatar-sm")+'<span>'+inq.assignee+'</span>' : '<span class="avatar avatar-sm">–</span><span>未割当</span>')
+      + '</span></div>'
+      + '<select class="card-status-select">'
+      +   STATUSES.map(function(s){ return '<option'+(s===inq.status?' selected':'')+'>'+s+'</option>'; }).join("")
+      + '</select>'
+      + '</div>';
+  }
+
+  document.getElementById("columnSelect").addEventListener("change", function(){
+    state.spColumn = this.value;
+    renderBoard();
+  });
+
+  // Custom pointer-based drag (PC board only). Native HTML5 drag-and-drop
+  // (draggable="true" + dragstart/dragover/drop) proved unreliable across
+  // browsers/trackpads, so columns are detected via elementFromPoint instead.
+  function columnAtPoint(x, y){
+    var el = document.elementFromPoint(x, y);
+    return el ? el.closest(".column") : null;
+  }
+
+  function startCardDrag(e, cardEl, id){
+    if(e.target.closest(".card-status-select")) return;
+    if(e.button !== 0) return;
+    if(state.boardView !== "pc") return;
+
+    var startX = e.clientX, startY = e.clientY;
+    var dragging = false;
+    var ghost = null;
+
+    function onMove(ev){
+      var dx = ev.clientX - startX, dy = ev.clientY - startY;
+      if(!dragging && Math.hypot(dx, dy) > 6){
+        dragging = true;
+        cardEl.classList.add("is-dragging");
+        var rect = cardEl.getBoundingClientRect();
+        ghost = cardEl.cloneNode(true);
+        ghost.classList.add("card-ghost");
+        ghost.style.width = rect.width + "px";
+        document.body.appendChild(ghost);
+      }
+      if(dragging && ghost){
+        ghost.style.left = (ev.clientX + 14) + "px";
+        ghost.style.top = (ev.clientY + 10) + "px";
+        document.querySelectorAll(".column.is-dragover").forEach(function(c){ c.classList.remove("is-dragover"); });
+        var col = columnAtPoint(ev.clientX, ev.clientY);
+        if(col) col.classList.add("is-dragover");
+      }
+    }
+
+    function onUp(ev){
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      document.querySelectorAll(".column.is-dragover").forEach(function(c){ c.classList.remove("is-dragover"); });
+      cardEl.classList.remove("is-dragging");
+      if(ghost) ghost.remove();
+      if(dragging){
+        state.suppressNextClick = true;
+        var col = columnAtPoint(ev.clientX, ev.clientY);
+        if(col) changeStatus(id, col.dataset.status);
+      }
+    }
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  }
+
+  function findInquiry(id){ return inquiries.find(function(i){ return i.id === id; }); }
+
+  function changeStatus(id, newStatus){
+    var inq = findInquiry(id);
+    if(!inq || inq.status === newStatus) return;
+    var old = inq.status;
+    inq.status = newStatus;
+    inq.history.push({type:"system", text:"ステータスが"+old+"→"+newStatus+"に変更されました", at:new Date()});
+    renderBoard();
+    if(state.modalId === id) renderModal(id);
+  }
+
+  // ---------- modal ----------
+  var backdrop = document.getElementById("modalBackdrop");
+
+  function openModal(id){
+    state.modalId = id;
+    renderModal(id);
+    backdrop.classList.add("is-open");
+  }
+  function closeModal(){
+    backdrop.classList.remove("is-open");
+    state.modalId = null;
+  }
+
+  function renderModal(id){
+    var inq = findInquiry(id);
+    if(!inq) return;
+
+    var avEl = document.getElementById("modalAvatar");
+    var avIdx = avatarIndex(inq.name);
+    avEl.textContent = inq.name.charAt(0);
+    avEl.style.background = "var(--av-"+avIdx+"-bg)";
+    avEl.style.color = "var(--av-"+avIdx+"-fg)";
+    document.getElementById("modalName").textContent = inq.name;
+    document.getElementById("modalIdText").textContent = "問い合わせ #"+String(inq.id).padStart(4,"0")+" ・ "+fmt(inq.createdAt)+" 受付";
+
+    var badge = document.getElementById("statusBadge");
+    badge.className = "status-badge "+STATUS_CLASS[inq.status];
+    document.getElementById("statusBadgeText").textContent = inq.status;
+
+    document.getElementById("modalMetaLine").innerHTML =
+      "<span>"+inq.email+"</span><span>"+(inq.tel||"電話番号なし")+"</span><span class=\"cat-tag "+CATEGORY_CLASS[inq.category]+"\">"+inq.category+"</span>";
+
+    document.getElementById("modalContent").textContent = inq.content;
+
+    document.getElementById("edit-status").value = inq.status;
+    document.getElementById("edit-priority").value = inq.priority;
+    document.getElementById("edit-assignee").value = inq.assignee || "";
+    document.getElementById("autoBadge").hidden = !inq.autoPriority;
+
+    document.getElementById("historyList").innerHTML = inq.history.slice().sort(function(a,b){ return a.at - b.at; }).map(function(h){
+      if(h.type === "comment"){
+        return '<div class="history-item history-item--comment"><div class="history-item__meta"><span class="author">'+h.author+'</span><span>'+fmt(h.at)+'</span></div><div class="history-item__text">'+h.text+'</div></div>';
+      }
+      return '<div class="history-item history-item--system"><div class="history-item__meta">'+fmt(h.at)+'</div><div class="history-item__text">'+h.text+'</div></div>';
+    }).join("");
+  }
+
+  document.getElementById("modalCloseX").addEventListener("click", closeModal);
+  document.getElementById("modalCloseBtn").addEventListener("click", closeModal);
+  backdrop.addEventListener("click", function(e){ if(e.target === backdrop) closeModal(); });
+  document.addEventListener("keydown", function(e){ if(e.key === "Escape" && backdrop.classList.contains("is-open")) closeModal(); });
+
+  document.getElementById("edit-status").addEventListener("change", function(){
+    changeStatus(state.modalId, this.value);
+  });
+  document.getElementById("edit-priority").addEventListener("change", function(){
+    var inq = findInquiry(state.modalId);
+    if(!inq || inq.priority === this.value) return;
+    var old = inq.priority;
+    inq.priority = this.value;
+    inq.autoPriority = false;
+    inq.history.push({type:"system", text:"優先度が"+old+"→"+this.value+"に変更されました(スタッフ操作)", at:new Date()});
+    renderModal(state.modalId);
+    renderBoard();
+  });
+  document.getElementById("edit-assignee").addEventListener("change", function(){
+    var inq = findInquiry(state.modalId);
+    if(!inq) return;
+    var old = inq.assignee || "未割当";
+    var next = this.value || null;
+    if((inq.assignee||"") === (next||"")) return;
+    inq.assignee = next;
+    inq.history.push({type:"system", text:"担当者が"+old+"→"+(next||"未割当")+"に変更されました", at:new Date()});
+    renderModal(state.modalId);
+    renderBoard();
+  });
+
+  document.getElementById("commentForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var input = document.getElementById("commentInput");
+    var text = input.value.trim();
+    if(!text) return;
+    var inq = findInquiry(state.modalId);
+    inq.history.push({type:"comment", author: state.loggedInStaff, text: text, at:new Date()});
+    input.value = "";
+    renderModal(state.modalId);
+  });
+
+  // ---------- init ----------
+  setScreen("form");
+  setBoardView("pc");
+})();
+</script>
