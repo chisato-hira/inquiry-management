@@ -9,7 +9,7 @@ erDiagram
     INQUIRIES ||--o{ COMMENTS : "紐づく"
 
     STAFFS {
-        int id PK "主キー（自動採番）"
+        bigint id PK "主キー（自動採番）"
         varchar name "スタッフ名"
         varchar email "メールアドレス（一意）"
         varchar password_digest "ハッシュ化されたパスワード"
@@ -18,7 +18,7 @@ erDiagram
     }
 
     INQUIRIES {
-        int id PK "主キー（自動採番）"
+        bigint id PK "主キー（自動採番）"
         varchar name "問い合わせ者氏名（必須）"
         varchar email "問い合わせ者メールアドレス（必須）"
         varchar phone "電話番号（任意）"
@@ -26,15 +26,15 @@ erDiagram
         text content "問い合わせ内容（必須）"
         varchar status "ステータス（未対応/対応中/完了）"
         varchar priority "優先度（未設定/高/中/低）"
-        int staff_id FK "担当スタッフ（NULL可）"
+        bigint staff_id FK "担当スタッフ（NULL可）"
         datetime created_at "受付日時"
         datetime updated_at "更新日時"
     }
 
     COMMENTS {
-        int id PK "主キー（自動採番）"
-        int inquiry_id FK "対象の問い合わせ"
-        int staff_id FK "投稿者（NULL＝システム自動記録）"
+        bigint id PK "主キー（自動採番）"
+        bigint inquiry_id FK "対象の問い合わせ"
+        bigint staff_id FK "投稿者（NULL＝システム自動記録）"
         varchar comment_type "種別（manual／system）"
         text content "コメント内容・自動記録メッセージ"
         datetime created_at "投稿日時"
@@ -49,7 +49,7 @@ erDiagram
 
 | カラム名 | データ型 | NULL | 初期値 | 説明 |
 |----------|---------|------|--------|------|
-| id | INT | 不可 | 自動採番 | 主キー |
+| id | BIGINT | 不可 | 自動採番 | 主キー |
 | name | VARCHAR(255) | 不可 | なし | スタッフ名 |
 | email | VARCHAR(255) | 不可 | なし | ログイン用メールアドレス(一意) |
 | password_digest | VARCHAR(255) | 不可 | なし | ハッシュ化されたパスワード(`has_secure_password`により自動生成) |
@@ -60,7 +60,7 @@ erDiagram
 
 | カラム名 | データ型 | NULL | 初期値 | 説明 |
 |----------|---------|------|--------|------|
-| id | INT | 不可 | 自動採番 | 主キー |
+| id | BIGINT | 不可 | 自動採番 | 主キー |
 | name | VARCHAR(255) | 不可 | なし | 問い合わせ者の氏名 |
 | email | VARCHAR(255) | 不可 | なし | 問い合わせ者のメールアドレス |
 | phone | VARCHAR(20) | 可 | NULL | 電話番号 |
@@ -68,7 +68,7 @@ erDiagram
 | content | TEXT | 不可 | なし | 問い合わせ内容 |
 | status | VARCHAR(20) | 不可 | `未対応` | ステータス：`未対応` / `対応中` / `完了` |
 | priority | VARCHAR(10) | 可 | `未設定` | 優先度：`未設定` / `高` / `中` / `低` |
-| staff_id | INT | 可 | NULL | 担当スタッフ(staffsテーブルへの外部キー) |
+| staff_id | BIGINT | 可 | NULL | 担当スタッフ(staffsテーブルへの外部キー) |
 | created_at | DATETIME | 不可 | 現在日時 | 受付日時(並び替え・経過時間判定に使用) |
 | updated_at | DATETIME | 不可 | 現在日時 | 更新日時 |
 
@@ -76,9 +76,9 @@ erDiagram
 
 | カラム名 | データ型 | NULL | 初期値 | 説明 |
 |----------|---------|------|--------|------|
-| id | INT | 不可 | 自動採番 | 主キー |
-| inquiry_id | INT | 不可 | なし | 対象の問い合わせ(inquiriesテーブルへの外部キー) |
-| staff_id | INT | 可 | NULL | 投稿したスタッフ(NULLの場合はシステムによる自動記録) |
+| id | BIGINT | 不可 | 自動採番 | 主キー |
+| inquiry_id | BIGINT | 不可 | なし | 対象の問い合わせ(inquiriesテーブルへの外部キー) |
+| staff_id | BIGINT | 可 | NULL | 投稿したスタッフ(NULLの場合はシステムによる自動記録) |
 | comment_type | VARCHAR(10) | 不可 | `manual` | `manual`(手動コメント) / `system`(自動記録) |
 | content | TEXT | 不可 | なし | コメント内容、またはシステムによる自動生成メッセージ(例:「ステータスが未対応→対応中に変更されました」) |
 | created_at | DATETIME | 不可 | 現在日時 | 投稿日時 |
