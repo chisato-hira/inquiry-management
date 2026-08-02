@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  inquiry: one
+  staff: one
+  comment_type: MyString
+  content: MyText
+
+two:
+  inquiry: two
+  staff: two
+  comment_type: MyString
+  content: MyText
