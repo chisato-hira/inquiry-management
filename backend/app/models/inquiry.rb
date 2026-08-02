@@ -13,4 +13,9 @@ class Inquiry < ApplicationRecord
   validates :content, presence: true
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :priority, inclusion: { in: PRIORITIES }, allow_nil: true
+
+  scope :ordered_by_priority, -> {
+    order(Arel.sql("FIELD(COALESCE(priority, '未設定'), '高', '中', '低', '未設定') ASC, created_at ASC, id ASC"))
+  }
+  scope :ordered_by_received_at, -> { order(created_at: :asc, id: :asc) }
 end
