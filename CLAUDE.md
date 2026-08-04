@@ -116,7 +116,7 @@ Issue作成 → ブランチ作成 → 実装・コミット・プッシュ → 
 
 - Ruby は `rbenv` で管理する。バージョンは `backend/.ruby-version`(3.4.10)を参照
 - 初回のみ `cd backend && bundle install` を実行する
-- フロントエンドは未実装(実装後にこのセクションへコマンドを追記する)
+- 初回のみ `cd frontend && npm install` を実行する
 
 ### 全サービス起動手順（毎回この順序で）
 
@@ -127,10 +127,14 @@ docker compose up -d
 # 2. バックエンド起動
 cd backend
 bin/rails server
+
+# 3. フロントエンド起動（別ターミナル）
+cd frontend
+npm run dev
 ```
 
 - バックエンドの動作確認：`http://localhost:3000/up` にアクセスし、200 OK(緑色の画面)が表示されることを確認する
-- フロントエンド起動コマンド・確認URLは、frontend実装後にこのセクションへ追記する
+- フロントエンドの動作確認：`http://localhost:5173` にアクセスし、ボード画面（未対応/対応中/完了の3カラム）が表示されることを確認する
 
 ### 案内時のルール
 
@@ -155,7 +159,8 @@ bin/rails server
 inquiry-management/
 ├── backend/            # Ruby on Rails API（ポート 3000、Rails 8.1 / Ruby 3.4.10）
 │   └── config/database.yml  # MySQL接続設定（docker-composeのDBに接続）
-├── frontend/           # Vue.js + TypeScript（ポート 5173、未実装）
+├── frontend/           # Vue.js + TypeScript + Vite（ポート 5173）
+│   └── src/{components,composables,api,types,utils}  # ボード画面（一覧表示）を実装済み
 ├── docker-compose.yml  # MySQL（ポート 3306）
 ├── docs/               # 要件・設計ドキュメント
 └── terraform/          # AWSインフラ構成（EC2 + RDS、未実装）
