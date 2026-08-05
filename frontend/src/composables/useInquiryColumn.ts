@@ -1,6 +1,8 @@
 import { ref } from 'vue'
 import { fetchInquiries, type SortMode } from '@/api/inquiries'
+import { ApiError } from '@/api/ApiError'
 import type { Inquiry, Status } from '@/types/inquiry'
+import { useAuth } from './useAuth'
 
 export function useInquiryColumn(status: Status) {
   const inquiries = ref<Inquiry[]>([])
@@ -35,6 +37,10 @@ export function useInquiryColumn(status: Status) {
       hasMore.value = res.meta.has_more
     } catch (e) {
       if (controller !== currentController) return
+
+      if (e instanceof ApiError && e.status === 401) {
+        useAuth().handleUnauthorized()
+      }
 
       error.value = e instanceof Error ? e.message : '不明なエラーが発生しました'
     } finally {
