@@ -1,4 +1,6 @@
 class InquiriesController < ApplicationController
+  before_action :require_login
+
   PER_PAGE = 20
 
   def index
