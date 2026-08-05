@@ -1,6 +1,5 @@
 import type { InquiriesResponse, Status } from '@/types/inquiry'
-
-const API_BASE_URL = 'http://localhost:3000'
+import { API_BASE_URL, request } from './http'
 
 export type SortMode = 'received_at' | 'priority'
 
@@ -15,9 +14,5 @@ export async function fetchInquiries(params: {
   url.searchParams.set('page', String(params.page))
   if (params.sort === 'priority') url.searchParams.set('sort', 'priority')
 
-  const response = await fetch(url, { signal: params.signal })
-  if (!response.ok) {
-    throw new Error(`問い合わせの取得に失敗しました (status: ${response.status})`)
-  }
-  return response.json() as Promise<InquiriesResponse>
+  return request<InquiriesResponse>(url, { signal: params.signal })
 }
