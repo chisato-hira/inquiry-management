@@ -11,3 +11,5 @@ ja:
         content: お問い合わせ内容
         status: ステータス
         priority: 優先度
+      comment:
+        content: 内容
