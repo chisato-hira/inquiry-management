@@ -158,17 +158,33 @@ npm run dev
 ```
 inquiry-management/
 ├── backend/            # Ruby on Rails API（ポート 3000、Rails 8.1 / Ruby 3.4.10）
-│   └── config/database.yml  # MySQL接続設定（docker-composeのDBに接続）
+│   ├── app/models/           # Staff, Inquiry, Comment
+│   ├── app/controllers/      # ApplicationController, SessionsController, StaffsController, InquiriesController
+│   └── config/database.yml   # MySQL接続設定（docker-composeのDBに接続）
 ├── frontend/           # Vue.js + TypeScript + Vite（ポート 5173）
-│   └── src/{components,composables,api,types,utils}  # ボード画面（一覧表示）を実装済み
+│   └── src/{components,composables,api,types,utils,views}
+│       # ログイン画面・ボード画面（一覧表示、ページネーション、優先度順/受付日時順ソート、24時間経過強調）を実装済み
 ├── docker-compose.yml  # MySQL（ポート 3306）
 ├── docs/               # 要件・設計ドキュメント
 └── terraform/          # AWSインフラ構成（EC2 + RDS、未実装）
 ```
 
 - `backend/` は `rails new backend --api --database=mysql` により作成した、API専用モードのRailsアプリ
-- staffs / inquiries / comments の migration・モデル・APIエンドポイントは未実装(次のIssueで対応)
-- 実装が進み次第、バックエンド層構成・フロントエンド構成・APIエンドポイント一覧をこのセクションに追記する
+- staffs / inquiries / comments の migration・モデルは実装済み(Issue #11)
+- 参照系API(GET)とスタッフ認証(セッションCookie方式)は実装済み(Issue #13, #17)。書き込み系(ステータス/優先度/担当者変更、コメント投稿)・統計ダッシュボード・メール通知は未実装(今後のIssueで対応)
+
+### APIエンドポイント一覧
+
+| メソッド | パス | 概要 | 認証 |
+|---|---|---|---|
+| GET | `/inquiries` | 問い合わせ一覧(status絞り込み、sort=priority\|created_at、20件ページネーション) | 必須 |
+| GET | `/inquiries/:id` | 問い合わせ詳細(対応履歴・コメントを時系列で含む) | 必須 |
+| GET | `/staffs` | 担当者ドロップダウン用の一覧(id/nameのみ) | 必須 |
+| POST | `/session` | ログイン | 不要 |
+| DELETE | `/session` | ログアウト | 必須 |
+| GET | `/session` | ログイン中スタッフの確認 | 必須 |
+
+実装が進み次第、このセクションを継続して更新する。
 
 ---
 
