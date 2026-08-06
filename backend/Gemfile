@@ -35,6 +35,14 @@ gem "image_processing", "~> 1.2"
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 gem "rack-cors"
 
+# Rails標準メッセージ(バリデーションエラー等)の日本語訳一式を提供する
+gem "rails-i18n"
+
+group :development do
+  # 開発環境でActionMailerの送信内容をブラウザでプレビューする
+  gem "letter_opener"
+end
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"

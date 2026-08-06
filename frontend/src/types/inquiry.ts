@@ -34,3 +34,5 @@ export interface InquiriesResponse {
 }
 
 export const STATUSES: Status[] = ['未対応', '対応中', '完了']
+
+export const CATEGORIES: Category[] = ['料金プラン', '使い方', '解約', '不具合', 'その他']

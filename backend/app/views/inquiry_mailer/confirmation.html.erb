@@ -1,0 +1,15 @@
+<p><%= @inquiry.name %>様</p>
+
+<p>お問い合わせありがとうございました。<br>
+確認のご連絡までしばらくお待ちください。</p>
+
+<hr>
+
+<p>
+  受付日時: <%= @inquiry.created_at.strftime("%Y年%m月%d日 %H:%M") %><br>
+  カテゴリ: <%= @inquiry.category %>
+</p>
+<p>
+  お問い合わせ内容:<br>
+  <%= simple_format(@inquiry.content) %>
+</p>

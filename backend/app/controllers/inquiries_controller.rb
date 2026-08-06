@@ -1,5 +1,5 @@
 class InquiriesController < ApplicationController
-  before_action :require_login
+  before_action :require_login, except: %i[create]
 
   PER_PAGE = 20
 
@@ -36,7 +36,31 @@ class InquiriesController < ApplicationController
     render json: inquiry_json(inquiry).merge(comments: comments.map { |comment| comment_json(comment) })
   end
 
+  def create
+    inquiry = Inquiry.new(inquiry_params)
+
+    unless inquiry.save
+      return render_error(inquiry.errors.full_messages.join(" / "))
+    end
+
+    ActiveRecord::Base.transaction do
+      inquiry.comments.create!(comment_type: "system", staff: nil, content: "問い合わせを受け付けました")
+
+      if inquiry.priority_auto_set_by_keyword?
+        inquiry.comments.create!(comment_type: "system", staff: nil, content: "キーワード検出により優先度を「高」に自動設定しました")
+      end
+    end
+
+    InquiryMailer.confirmation(inquiry).deliver_later
+
+    render json: inquiry_json(inquiry), status: :created
+  end
+
   private
+
+  def inquiry_params
+    params.require(:inquiry).permit(:name, :email, :phone, :category, :content)
+  end
 
   def inquiry_json(inquiry)
     {
