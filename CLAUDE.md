@@ -192,3 +192,11 @@ inquiry-management/
 
 - タスク管理アプリ(初級編)と同一のインフラ構成(EC2: t3.micro、RDS: db.t4g.micro、Terraformで管理)を使用する
 - 詳細は [`docs/aws-infrastructure.md`](docs/aws-infrastructure.md) を参照すること
+
+---
+
+## 12. Cookieセッションを使うAPIをcurlで検証する場合の注意
+
+- `POST /session`(ログイン)・`DELETE /session`(ログアウト)等、Cookieでセッションを管理するAPIをcurlで連続して検証する場合、**すべてのリクエストで `-b <file> -c <file>` を同じファイル名でセットで指定すること**
+- `-c`(Cookie保存)を付け忘れると、サーバーが返した最新のCookie状態(ログアウト後の状態など)が保存されず、正しく動作している処理が「効いていない」ように見える誤検知が起きる
+- 誤検知が起きた場合、まずアプリのコードを疑う前に、検証コマンド側(`-b`/`-c`の指定漏れ)を確認すること
