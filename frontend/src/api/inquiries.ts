@@ -1,5 +1,6 @@
-import type { Category, Inquiry, InquiriesResponse, Status } from '@/types/inquiry'
+import type { Category, Inquiry, InquiriesResponse, InquiryDetail, Priority, Status } from '@/types/inquiry'
 import { API_BASE_URL, request } from './http'
+import { csrfHeader } from './csrfToken'
 
 export type SortMode = 'received_at' | 'priority'
 
@@ -31,4 +32,23 @@ export async function fetchInquiries(params: {
   if (params.sort === 'priority') url.searchParams.set('sort', 'priority')
 
   return request<InquiriesResponse>(url, { signal: params.signal })
+}
+
+export function fetchInquiry(id: number, signal?: AbortSignal): Promise<InquiryDetail> {
+  return request<InquiryDetail>(new URL(`/inquiries/${id}`, API_BASE_URL), { signal })
+}
+
+export interface UpdateInquiryPayload {
+  status?: Status
+  priority?: Priority
+  staff_id?: number | ''
+  lock_version: number
+}
+
+export function updateInquiry(id: number, payload: UpdateInquiryPayload): Promise<Inquiry> {
+  return request<Inquiry>(new URL(`/inquiries/${id}`, API_BASE_URL), {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...csrfHeader() },
+    body: JSON.stringify({ inquiry: payload }),
+  })
 }

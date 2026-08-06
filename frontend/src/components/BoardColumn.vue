@@ -9,6 +9,10 @@ const props = defineProps<{
   title: string
 }>()
 
+const emit = defineEmits<{
+  select: [id: number]
+}>()
+
 const { inquiries, hasMore, isLoading, error, sortMode, load, loadMore, toggleSort } =
   useInquiryColumn(props.status)
 
@@ -17,6 +21,8 @@ const isEmpty = computed(() => !isLoading.value && !error.value && inquiries.val
 onMounted(() => {
   load()
 })
+
+defineExpose({ reload: load })
 </script>
 
 <template>
@@ -43,7 +49,12 @@ onMounted(() => {
     <p v-else-if="isEmpty" class="text-sm text-slate-500">該当する問い合わせはありません</p>
 
     <div class="flex flex-col gap-2">
-      <InquiryCard v-for="inquiry in inquiries" :key="inquiry.id" :inquiry="inquiry" />
+      <InquiryCard
+        v-for="inquiry in inquiries"
+        :key="inquiry.id"
+        :inquiry="inquiry"
+        @select="emit('select', $event)"
+      />
     </div>
 
     <button

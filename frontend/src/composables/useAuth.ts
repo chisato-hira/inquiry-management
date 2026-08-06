@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import type { Staff } from '@/types/inquiry'
 import { login as loginApi, logout as logoutApi, fetchCurrentStaff } from '@/api/session'
+import { clearCsrfToken } from '@/api/csrfToken'
 
 const currentStaff = ref<Staff | null>(null)
 const isCheckingSession = ref(true)
@@ -12,6 +13,7 @@ export function useAuth() {
     } catch {
       // 未ログイン、またはセッション確認自体に失敗した場合も未ログイン扱いにする
       currentStaff.value = null
+      clearCsrfToken()
     } finally {
       isCheckingSession.value = false
     }
@@ -28,11 +30,13 @@ export function useAuth() {
       // ネットワークエラーでも、ローカルはログアウト済み扱いにする
     } finally {
       currentStaff.value = null
+      clearCsrfToken()
     }
   }
 
   function handleUnauthorized() {
     currentStaff.value = null
+    clearCsrfToken()
   }
 
   return { currentStaff, isCheckingSession, checkSession, login, logout, handleUnauthorized }

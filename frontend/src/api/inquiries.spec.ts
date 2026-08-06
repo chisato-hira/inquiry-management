@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { createInquiry } from './inquiries'
+import { createInquiry, fetchInquiry, updateInquiry } from './inquiries'
+import { setCsrfToken, clearCsrfToken } from './csrfToken'
 
 describe('createInquiry', () => {
   afterEach(() => {
@@ -28,6 +29,55 @@ describe('createInquiry', () => {
     const [url, init] = fetchMock.mock.calls[0] as [string | URL, RequestInit]
     expect(String(url)).toBe('http://localhost:3000/inquiries')
     expect(init.method).toBe('POST')
+    expect(JSON.parse(init.body as string)).toEqual({ inquiry: payload })
+  })
+})
+
+describe('fetchInquiry', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('GET /inquiries/:id を呼ぶ', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ id: 1, comments: [] }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    await fetchInquiry(1)
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url] = fetchMock.mock.calls[0] as [string | URL, RequestInit]
+    expect(String(url)).toBe('http://localhost:3000/inquiries/1')
+  })
+})
+
+describe('updateInquiry', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    clearCsrfToken()
+  })
+
+  it('PATCH /inquiries/:id に { inquiry: {...} } 形式のボディとX-CSRF-Tokenヘッダを送る', async () => {
+    setCsrfToken('token-xyz')
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ id: 1 }),
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const payload = { status: '対応中' as const, lock_version: 2 }
+
+    await updateInquiry(1, payload)
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    const [url, init] = fetchMock.mock.calls[0] as [string | URL, RequestInit]
+    expect(String(url)).toBe('http://localhost:3000/inquiries/1')
+    expect(init.method).toBe('PATCH')
+    expect((init.headers as Record<string, string>)['X-CSRF-Token']).toBe('token-xyz')
     expect(JSON.parse(init.body as string)).toEqual({ inquiry: payload })
   })
 })
