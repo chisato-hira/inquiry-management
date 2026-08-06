@@ -27,4 +27,14 @@ class ApplicationController < ActionController::API
 
     render_error("不正なリクエストです")
   end
+
+  def comment_json(comment)
+    {
+      id: comment.id,
+      content: comment.content,
+      comment_type: comment.comment_type,
+      created_at: comment.created_at,
+      staff: comment.staff && { id: comment.staff.id, name: comment.staff.name }
+    }
+  end
 end

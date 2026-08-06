@@ -171,7 +171,7 @@ inquiry-management/
 
 - `backend/` は `rails new backend --api --database=mysql` により作成した、API専用モードのRailsアプリ
 - staffs / inquiries / comments の migration・モデルは実装済み(Issue #11)
-- 参照系API(GET)とスタッフ認証(セッションCookie方式)は実装済み(Issue #13, #17)。書き込み系(ステータス/優先度/担当者変更、コメント投稿)・統計ダッシュボード・メール通知は未実装(今後のIssueで対応)
+- 参照系API(GET)とスタッフ認証(セッションCookie方式)は実装済み(Issue #13, #17)。書き込み系のうちステータス/優先度/担当者変更(Issue #32)・コメント投稿(Issue #34)は実装済み。統計ダッシュボードは未実装(今後のIssueで対応)
 
 ### APIエンドポイント一覧
 
@@ -183,6 +183,7 @@ inquiry-management/
 | POST | `/session` | ログイン | 不要 |
 | DELETE | `/session` | ログアウト | 必須 |
 | GET | `/session` | ログイン中スタッフの確認 | 必須 |
+| POST | `/inquiries/:id/comments` | コメント投稿(manual、投稿者はログイン中スタッフに固定) | 必須(CSRF検証あり) |
 
 実装が進み次第、このセクションを継続して更新する。
 
