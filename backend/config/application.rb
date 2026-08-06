@@ -36,5 +36,8 @@ module Backend
     config.session_store :cookie_store, key: "_inquiry_management_session"
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use config.session_store, config.session_options
+
+    # 無認証エンドポイントへの過剰なリクエストを制限する
+    config.middleware.use Rack::Attack
   end
 end

@@ -38,6 +38,9 @@ gem "rack-cors"
 # Rails標準メッセージ(バリデーションエラー等)の日本語訳一式を提供する
 gem "rails-i18n"
 
+# 無認証エンドポイントへのリクエストをIP単位でレート制限する
+gem "rack-attack"
+
 group :development do
   # 開発環境でActionMailerの送信内容をブラウザでプレビューする
   gem "letter_opener"
