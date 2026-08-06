@@ -1,7 +1,23 @@
-import type { InquiriesResponse, Status } from '@/types/inquiry'
+import type { Category, Inquiry, InquiriesResponse, Status } from '@/types/inquiry'
 import { API_BASE_URL, request } from './http'
 
 export type SortMode = 'received_at' | 'priority'
+
+export interface CreateInquiryPayload {
+  name: string
+  email: string
+  phone: string
+  category: Category
+  content: string
+}
+
+export function createInquiry(payload: CreateInquiryPayload): Promise<Inquiry> {
+  return request<Inquiry>(new URL('/inquiries', API_BASE_URL), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ inquiry: payload }),
+  })
+}
 
 export async function fetchInquiries(params: {
   status: Status

@@ -1,0 +1,13 @@
+ja:
+  activerecord:
+    models:
+      inquiry: お問い合わせ
+    attributes:
+      inquiry:
+        name: 氏名
+        email: メールアドレス
+        phone: 電話番号
+        category: カテゴリ
+        content: お問い合わせ内容
+        status: ステータス
+        priority: 優先度
