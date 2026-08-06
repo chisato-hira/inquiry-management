@@ -5,7 +5,8 @@ class SessionsController < ApplicationController
     if staff&.authenticate(params[:password])
       reset_session
       session[:staff_id] = staff.id
-      render json: { id: staff.id, name: staff.name }
+      session[:csrf_token] = SecureRandom.hex(32)
+      render json: { id: staff.id, name: staff.name, csrf_token: session[:csrf_token] }
     else
       render_error("メールアドレスまたはパスワードが正しくありません", status: :unauthorized)
     end
@@ -18,7 +19,8 @@ class SessionsController < ApplicationController
 
   def show
     if current_staff
-      render json: { id: current_staff.id, name: current_staff.name }
+      session[:csrf_token] ||= SecureRandom.hex(32)
+      render json: { id: current_staff.id, name: current_staff.name, csrf_token: session[:csrf_token] }
     else
       render_error("ログインしていません", status: :unauthorized)
     end

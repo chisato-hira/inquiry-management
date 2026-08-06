@@ -18,4 +18,13 @@ class ApplicationController < ActionController::API
   def require_login
     render_error("ログインが必要です", status: :unauthorized) unless current_staff
   end
+
+  def verify_csrf_token!
+    session_token = session[:csrf_token]
+    header_token = request.headers["X-CSRF-Token"]
+    return if session_token.present? && header_token.present? &&
+              ActiveSupport::SecurityUtils.secure_compare(header_token, session_token)
+
+    render_error("不正なリクエストです")
+  end
 end

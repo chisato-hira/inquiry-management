@@ -1,5 +1,6 @@
 class InquiriesController < ApplicationController
   before_action :require_login, except: %i[create]
+  before_action :verify_csrf_token!, only: %i[update]
 
   PER_PAGE = 20
 
@@ -56,10 +57,68 @@ class InquiriesController < ApplicationController
     render json: inquiry_json(inquiry), status: :created
   end
 
+  def update
+    inquiry = Inquiry.find(params[:id])
+
+    return render_error("lock_versionが必要です") if inquiry_update_params[:lock_version].blank?
+
+    changed_fields = inquiry_update_params.to_h.keys & %w[status priority staff_id]
+    return render_error("更新項目がありません") if changed_fields.empty?
+
+    if inquiry_update_params.key?(:staff_id)
+      staff_id = inquiry_update_params[:staff_id].presence
+      return render_error("指定された担当者が見つかりません") if staff_id.present? && !Staff.exists?(id: staff_id)
+    end
+
+    old_status = inquiry.status
+    old_priority = inquiry.priority
+    old_staff = inquiry.staff
+
+    begin
+      ActiveRecord::Base.transaction do
+        attrs = { lock_version: inquiry_update_params[:lock_version] }
+        attrs[:status] = inquiry_update_params[:status] if inquiry_update_params.key?(:status)
+        attrs[:priority] = inquiry_update_params[:priority].presence if inquiry_update_params.key?(:priority)
+        attrs[:staff_id] = inquiry_update_params[:staff_id].presence if inquiry_update_params.key?(:staff_id)
+
+        inquiry.update!(attrs)
+
+        if inquiry_update_params.key?(:status) && old_status != inquiry.status
+          inquiry.comments.create!(comment_type: "system", staff: nil,
+            content: "ステータスが#{old_status}→#{inquiry.status}に変更されました(自動記録)")
+        end
+
+        if inquiry_update_params.key?(:priority) && priority_label(old_priority) != priority_label(inquiry.priority)
+          inquiry.comments.create!(comment_type: "system", staff: nil,
+            content: "優先度が#{priority_label(old_priority)}→#{priority_label(inquiry.priority)}に変更されました(自動記録)")
+        end
+
+        if inquiry_update_params.key?(:staff_id) && old_staff&.id != inquiry.staff_id
+          inquiry.comments.create!(comment_type: "system", staff: nil,
+            content: "担当者が#{old_staff&.name || '未割り当て'}→#{inquiry.staff&.name || '未割り当て'}に変更されました(自動記録)")
+        end
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      return render_error(e.record.errors.full_messages.join(" / "))
+    rescue ActiveRecord::StaleObjectError
+      return render_error("他のスタッフの操作により更新されています。最新の内容を確認してください", status: :conflict)
+    end
+
+    render json: inquiry_json(inquiry)
+  end
+
   private
 
   def inquiry_params
     params.require(:inquiry).permit(:name, :email, :phone, :category, :content)
+  end
+
+  def inquiry_update_params
+    params.require(:inquiry).permit(:status, :priority, :staff_id, :lock_version)
+  end
+
+  def priority_label(value)
+    value.presence || "未設定"
   end
 
   def inquiry_json(inquiry)
@@ -72,6 +131,7 @@ class InquiriesController < ApplicationController
       content: inquiry.content,
       status: inquiry.status,
       priority: inquiry.priority,
+      lock_version: inquiry.lock_version,
       created_at: inquiry.created_at,
       updated_at: inquiry.updated_at,
       staff: inquiry.staff && { id: inquiry.staff.id, name: inquiry.staff.name }
