@@ -14,7 +14,7 @@ class InquiriesController < ApplicationController
 
     scope = params[:sort] == "priority" ? scope.ordered_by_priority : scope.ordered_by_received_at
 
-    page = [params[:page].to_i, 1].max
+    page = [ params[:page].to_i, 1 ].max
     total_count = scope.count
     inquiries = scope.limit(PER_PAGE).offset((page - 1) * PER_PAGE)
 
@@ -31,7 +31,7 @@ class InquiriesController < ApplicationController
 
   def show
     inquiry = Inquiry.includes(:staff, comments: :staff).find(params[:id])
-    comments = inquiry.comments.sort_by { |comment| [comment.created_at, comment.id] }
+    comments = inquiry.comments.sort_by { |comment| [ comment.created_at, comment.id ] }
 
     render json: inquiry_json(inquiry).merge(comments: comments.map { |comment| comment_json(comment) })
   end
