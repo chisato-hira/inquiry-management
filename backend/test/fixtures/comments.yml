@@ -3,11 +3,11 @@
 one:
   inquiry: one
   staff: one
-  comment_type: MyString
-  content: MyText
+  comment_type: manual
+  content: 確認します
 
 two:
   inquiry: two
   staff: two
-  comment_type: MyString
-  content: MyText
+  comment_type: manual
+  content: 対応中です

@@ -42,6 +42,21 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal staffs(:one).id, body["id"]
   end
 
+  test "ログイン成功時にcsrf_tokenが発行される" do
+    post session_url, params: { email: staffs(:one).email, password: "secret" }
+
+    assert_response :success
+    assert_not_nil JSON.parse(response.body)["csrf_token"]
+  end
+
+  test "セッション確認APIにもcsrf_tokenが含まれる" do
+    post session_url, params: { email: staffs(:one).email, password: "secret" }
+
+    get session_url
+    assert_response :success
+    assert_not_nil JSON.parse(response.body)["csrf_token"]
+  end
+
   test "未ログイン状態でのセッション確認APIは401になる" do
     get session_url
 

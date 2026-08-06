@@ -1,21 +1,23 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  name: MyString
-  email: MyString
-  phone: MyString
-  category: MyString
-  content: MyText
-  status: MyString
-  priority: MyString
+  name: 山田太郎
+  email: yamada@example.com
+  phone: 090-1234-5678
+  category: 不具合
+  content: 画面が表示されません
+  status: 未対応
+  priority: 未設定
   staff: one
+  lock_version: 0
 
 two:
-  name: MyString
-  email: MyString
-  phone: MyString
-  category: MyString
-  content: MyText
-  status: MyString
-  priority: MyString
+  name: 鈴木花子
+  email: suzuki@example.com
+  phone: 080-9876-5432
+  category: 使い方
+  content: 操作方法が分かりません
+  status: 対応中
+  priority: 中
   staff: two
+  lock_version: 0
