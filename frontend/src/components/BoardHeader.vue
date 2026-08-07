@@ -5,7 +5,9 @@ const { currentStaff, logout } = useAuth()
 </script>
 
 <template>
-  <div class="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
+  <div
+    class="flex flex-col gap-2 border-b border-slate-200 bg-white px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-6"
+  >
     <h1 class="text-lg font-semibold text-slate-900">Inquiry Board</h1>
     <div class="flex items-center gap-3 text-sm text-slate-600">
       <span>ログイン中: {{ currentStaff?.name }}</span>
