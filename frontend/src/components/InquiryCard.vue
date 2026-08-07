@@ -43,21 +43,21 @@ function onMobileStatusChange(event: Event) {
     @dragend="onDragEnd"
   >
     <button type="button" class="w-full text-left" @click="emit('select', inquiry.id)">
-      <p class="font-medium text-slate-900">{{ inquiry.name }}</p>
-      <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-sm text-slate-600">
+      <p class="break-words font-medium text-slate-900">{{ inquiry.name }}</p>
+      <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 break-words text-sm text-slate-600 2xl:text-base">
         <span>{{ inquiry.category }}</span>
         <span>優先度: {{ inquiry.priority ?? '未設定' }}</span>
         <span>担当: {{ inquiry.staff?.name ?? '未割当' }}</span>
       </div>
     </button>
 
-    <label class="mt-2 block text-xs text-slate-600 sm:hidden" draggable="false">
+    <label class="mt-2 block text-xs text-slate-600 lg:hidden" draggable="false">
       ステータス
       <select
         :value="inquiry.status"
         :disabled="isMoving"
         draggable="false"
-        class="mt-1 w-full rounded border border-slate-300 px-2 py-1.5 text-sm disabled:opacity-50"
+        class="mt-1 w-full rounded border border-slate-300 px-2 py-2 text-sm disabled:opacity-50"
         @mousedown.stop
         @click.stop
         @change="onMobileStatusChange"

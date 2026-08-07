@@ -34,10 +34,10 @@ function onMoveStatus({ inquiry, status }: { inquiry: Inquiry; status: Status })
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 p-6">
+  <div class="flex flex-col gap-3 p-4 lg:p-6">
     <p v-if="moveError" class="text-sm text-red-600">{{ moveError }}</p>
 
-    <div class="flex gap-4 overflow-x-auto">
+    <div class="flex flex-col gap-4 lg:flex-row lg:justify-center lg:overflow-x-auto">
       <BoardColumn
         ref="pendingColumn"
         status="未対応"
