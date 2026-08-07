@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
-import type { Status } from '@/types/inquiry'
+import { onMounted, computed, ref } from 'vue'
+import type { Inquiry, Status } from '@/types/inquiry'
 import { useInquiryColumn } from '@/composables/useInquiryColumn'
+import { useBoardDrag } from '@/composables/useBoardDrag'
 import InquiryCard from './InquiryCard.vue'
 
 const props = defineProps<{
@@ -11,12 +12,33 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   select: [id: number]
+  drop: [status: Status]
+  'move-status': [payload: { inquiry: Inquiry; status: Status }]
 }>()
 
 const { inquiries, hasMore, isLoading, error, sortMode, load, loadMore, toggleSort } =
   useInquiryColumn(props.status)
+const { draggedInquiry } = useBoardDrag()
 
 const isEmpty = computed(() => !isLoading.value && !error.value && inquiries.value.length === 0)
+
+const dragCounter = ref(0)
+const isDropTarget = computed(
+  () => dragCounter.value > 0 && draggedInquiry.value !== null && draggedInquiry.value.status !== props.status,
+)
+
+function onDragEnter() {
+  dragCounter.value++
+}
+
+function onDragLeave() {
+  dragCounter.value = Math.max(0, dragCounter.value - 1)
+}
+
+function onDrop() {
+  dragCounter.value = 0
+  emit('drop', props.status)
+}
 
 onMounted(() => {
   load()
@@ -26,7 +48,14 @@ defineExpose({ reload: load })
 </script>
 
 <template>
-  <div class="flex w-80 shrink-0 flex-col gap-3 rounded-lg bg-slate-100 p-3">
+  <div
+    class="flex w-80 shrink-0 flex-col gap-3 rounded-lg border-2 p-3 transition-colors"
+    :class="isDropTarget ? 'border-blue-500 border-dashed bg-blue-50' : 'border-transparent bg-slate-100'"
+    @dragover.prevent
+    @dragenter.prevent="onDragEnter"
+    @dragleave.prevent="onDragLeave"
+    @drop.prevent="onDrop"
+  >
     <div class="flex items-center justify-between">
       <h2 class="font-semibold text-slate-800">{{ title }}</h2>
       <button
@@ -44,6 +73,13 @@ defineExpose({ reload: load })
       </button>
     </div>
 
+    <p
+      v-if="isDropTarget"
+      class="rounded border-2 border-dashed border-blue-400 bg-blue-100 py-2 text-center text-sm font-semibold text-blue-700"
+    >
+      ここにドロップしてステータスを「{{ title }}」に変更
+    </p>
+
     <p v-if="isLoading && inquiries.length === 0" class="text-sm text-slate-500">取得中...</p>
     <p v-else-if="error" class="text-sm text-red-600">取得に失敗しました: {{ error }}</p>
     <p v-else-if="isEmpty" class="text-sm text-slate-500">該当する問い合わせはありません</p>
@@ -54,6 +90,7 @@ defineExpose({ reload: load })
         :key="inquiry.id"
         :inquiry="inquiry"
         @select="emit('select', $event)"
+        @move-status="(status) => emit('move-status', { inquiry, status })"
       />
     </div>
 
