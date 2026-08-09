@@ -271,6 +271,34 @@ class InquiriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "担当者未設定のまま完了に更新すると422になる" do
+    log_in_as(staffs(:one))
+    inquiry = inquiries(:three)
+
+    patch inquiry_url(inquiry),
+      params: { inquiry: { status: "完了", lock_version: inquiry.lock_version } },
+      headers: csrf_headers
+
+    assert_response :unprocessable_entity
+    body = JSON.parse(response.body)
+    assert_includes body["error"], "担当者が未設定です。担当者を設定すると「完了」に移動できます"
+    assert_equal "未対応", inquiry.reload.status
+  end
+
+  test "担当者を同時に設定すれば未割当の問い合わせでも完了に更新できる" do
+    log_in_as(staffs(:one))
+    inquiry = inquiries(:three)
+
+    patch inquiry_url(inquiry),
+      params: { inquiry: { status: "完了", staff_id: staffs(:one).id, lock_version: inquiry.lock_version } },
+      headers: csrf_headers
+
+    assert_response :success
+    inquiry.reload
+    assert_equal "完了", inquiry.status
+    assert_equal staffs(:one).id, inquiry.staff_id
+  end
+
   test "楽観的ロック: 古いlock_versionで更新すると409になりコメントも作られない" do
     log_in_as(staffs(:one))
     inquiry = inquiries(:one)
