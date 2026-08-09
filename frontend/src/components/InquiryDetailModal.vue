@@ -274,9 +274,7 @@ function formatDateTime(iso: string): string {
 
             <div>
               <p class="text-sm text-slate-500">内容</p>
-              <p
-                class="mt-1 whitespace-pre-wrap rounded border border-slate-200 bg-slate-50 p-2 text-sm text-slate-800"
-              >
+              <p class="mt-1 border-l-4 border-slate-300 py-1 pl-3 text-sm whitespace-pre-wrap text-slate-800">
                 {{ inquiry.content }}
               </p>
             </div>
