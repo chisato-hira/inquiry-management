@@ -21,6 +21,7 @@ class Inquiry < ApplicationRecord
   validates :content, presence: true
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :priority, inclusion: { in: PRIORITIES }, allow_nil: true
+  validate :staff_required_when_completed
 
   scope :ordered_by_priority, -> {
     order(Arel.sql("FIELD(COALESCE(priority, '未設定'), '高', '中', '低', '未設定') ASC, created_at ASC, id ASC"))
@@ -39,5 +40,14 @@ class Inquiry < ApplicationRecord
 
     self.priority = "高"
     @priority_auto_set_by_keyword = true
+  end
+
+  # 「完了」を担当者未定のまま付けると責任の所在があいまいになるため、
+  # 完了に変更する時点で担当者が設定されていることを必須にする
+  # (対応中までは担当者不問で自由に変更できる、実際の現場ツールに倣った運用)
+  def staff_required_when_completed
+    return unless status == "完了" && staff_id.blank?
+
+    errors.add(:base, "担当者が未設定です。担当者を設定すると「完了」に移動できます")
   end
 end

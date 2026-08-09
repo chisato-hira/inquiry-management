@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
 import type { Priority, Status } from '@/types/inquiry'
 import { PRIORITIES, STATUSES } from '@/types/inquiry'
 import { useInquiryDetail } from '@/composables/useInquiryDetail'
 import { useStaffs } from '@/composables/useStaffs'
+import { useBoardDrag } from '@/composables/useBoardDrag'
 
 const props = defineProps<{
   inquiryId: number
+  pendingStatus?: Status | null
 }>()
 
 const emit = defineEmits<{
@@ -22,10 +24,20 @@ const {
   error: staffsError,
   ensureLoaded: ensureStaffsLoaded,
 } = useStaffs()
+const { clearMoveError } = useBoardDrag()
 
 const newComment = ref('')
 const savedMessage = ref<string | null>(null)
 let savedMessageTimer: ReturnType<typeof window.setTimeout> | null = null
+
+// 担当者未設定のまま完了しようとしてこのモーダルが開かれた場合、担当者を設定した
+// 瞬間に自動でこのステータスも一緒に保存する。一度適用したらnullに戻す(一度きりの導線のため)
+const localPendingStatus = ref<Status | null>(props.pendingStatus ?? null)
+const staffSelect = ref<HTMLSelectElement | null>(null)
+
+// 担当者設定と同時に完了した瞬間だけ、案内バナーの位置に緑の完了確認を出す
+const justCompleted = ref(false)
+let justCompletedTimer: ReturnType<typeof window.setTimeout> | null = null
 
 onMounted(() => {
   load()
@@ -33,9 +45,22 @@ onMounted(() => {
   window.addEventListener('keydown', onKeydown)
 })
 
+// 担当者未設定エラーからこのモーダルを開いた場合、データ読み込み完了(=担当者欄が
+// DOMに現れるタイミング)を待ってから担当者欄へフォーカスする
+watch(
+  inquiry,
+  async (value) => {
+    if (!value || !localPendingStatus.value) return
+    await nextTick()
+    staffSelect.value?.focus()
+  },
+  { once: true },
+)
+
 onUnmounted(() => {
   window.removeEventListener('keydown', onKeydown)
   if (savedMessageTimer) clearTimeout(savedMessageTimer)
+  if (justCompletedTimer) clearTimeout(justCompletedTimer)
 })
 
 function onKeydown(e: KeyboardEvent) {
@@ -59,6 +84,7 @@ async function onStatusChange(event: Event) {
   if (await updateField({ status: value })) {
     emit('updated')
     showSaved('ステータス')
+    clearMoveError(props.inquiryId)
   }
 }
 
@@ -67,15 +93,30 @@ async function onPriorityChange(event: Event) {
   if (await updateField({ priority: value })) {
     emit('updated')
     showSaved('優先度')
+    clearMoveError(props.inquiryId)
   }
 }
 
 async function onStaffChange(event: Event) {
   const value = (event.target as HTMLSelectElement).value
   const staffId = value === '' ? '' : Number(value)
-  if (await updateField({ staff_id: staffId })) {
+  const completeAtOnce = localPendingStatus.value === '完了' && staffId !== ''
+
+  const patch: { staff_id: number | ''; status?: Status } = { staff_id: staffId }
+  if (completeAtOnce) patch.status = localPendingStatus.value!
+
+  if (await updateField(patch)) {
     emit('updated')
-    showSaved('担当者')
+    showSaved(completeAtOnce ? '担当者・ステータス' : '担当者')
+    clearMoveError(props.inquiryId)
+    if (completeAtOnce) {
+      localPendingStatus.value = null
+      justCompleted.value = true
+      if (justCompletedTimer) clearTimeout(justCompletedTimer)
+      justCompletedTimer = window.setTimeout(() => {
+        justCompleted.value = false
+      }, 3000)
+    }
   }
 }
 
@@ -106,6 +147,19 @@ function formatDateTime(iso: string): string {
             最新の情報を取得できませんでした。表示内容が古い可能性があります
           </p>
 
+          <p
+            v-if="localPendingStatus === '完了'"
+            class="rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800"
+          >
+            担当者を設定すると「完了」になります
+          </p>
+          <p
+            v-else-if="justCompleted"
+            class="rounded-md border border-green-300 bg-green-50 px-3 py-2 text-sm font-medium text-green-800"
+          >
+            ✓「完了」にしました
+          </p>
+
           <dl class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm text-slate-700">
             <dt class="text-slate-500">氏名</dt>
             <dd>{{ inquiry.name }}</dd>
@@ -130,7 +184,8 @@ function formatDateTime(iso: string): string {
               <select
                 :value="inquiry.status"
                 :disabled="isSaving"
-                class="rounded border border-slate-300 px-3 py-2 text-sm disabled:opacity-50"
+                class="rounded border px-3 py-2 text-sm disabled:opacity-50"
+                :class="inquiry.status === '完了' ? 'border-green-400 ring-2 ring-green-100' : 'border-slate-300'"
                 @change="onStatusChange"
               >
                 <option v-for="s in STATUSES" :key="s" :value="s">{{ s }}</option>
@@ -152,9 +207,11 @@ function formatDateTime(iso: string): string {
             <label class="flex flex-col gap-1 text-sm text-slate-700">
               担当者
               <select
+                ref="staffSelect"
                 :value="inquiry.staff?.id ?? ''"
                 :disabled="isSaving || isStaffsLoading"
-                class="rounded border border-slate-300 px-3 py-2 text-sm disabled:opacity-50"
+                class="rounded border px-3 py-2 text-sm disabled:opacity-50"
+                :class="localPendingStatus === '完了' ? 'border-blue-400 ring-2 ring-blue-100' : 'border-slate-300'"
                 @change="onStaffChange"
               >
                 <option value="">未割当</option>

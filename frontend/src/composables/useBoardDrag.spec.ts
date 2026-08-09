@@ -36,10 +36,11 @@ describe('useBoardDrag', () => {
   beforeEach(() => {
     updateInquiryMock.mockReset()
     handleUnauthorizedMock.mockReset()
-    const { endDrag, movingIds, moveError } = useBoardDrag()
+    const { endDrag, movingIds, moveError, moveErrorInquiryId } = useBoardDrag()
     endDrag()
     movingIds.value.clear()
     moveError.value = null
+    moveErrorInquiryId.value = null
   })
 
   it('同一ステータスへの移動はAPIを呼ばずno-opになる', async () => {
@@ -54,7 +55,7 @@ describe('useBoardDrag', () => {
 
   it('成功時はmoveErrorをクリアし、reloadを呼び、movingIdsから該当IDを除去する', async () => {
     updateInquiryMock.mockResolvedValue({})
-    const { moveStatus, movingIds, moveError } = useBoardDrag()
+    const { moveStatus, movingIds, moveError, moveErrorInquiryId } = useBoardDrag()
     const reload = vi.fn().mockResolvedValue(undefined)
 
     await moveStatus(makeInquiry({ id: 1, status: '未対応' }), '対応中', reload)
@@ -62,6 +63,7 @@ describe('useBoardDrag', () => {
     expect(updateInquiryMock).toHaveBeenCalledWith(1, { status: '対応中', lock_version: 0 })
     expect(reload).toHaveBeenCalled()
     expect(moveError.value).toBeNull()
+    expect(moveErrorInquiryId.value).toBeNull()
     expect(movingIds.value.has(1)).toBe(false)
   })
 
@@ -76,26 +78,58 @@ describe('useBoardDrag', () => {
     expect(reload).not.toHaveBeenCalled()
   })
 
-  it('409時はmoveErrorをセットし、reloadも呼ばれる', async () => {
+  it('409時はmoveErrorとmoveErrorInquiryIdをセットし、reloadも呼ばれる', async () => {
     updateInquiryMock.mockRejectedValue(new ApiError('conflict', 409))
-    const { moveStatus, moveError } = useBoardDrag()
+    const { moveStatus, moveError, moveErrorInquiryId } = useBoardDrag()
     const reload = vi.fn().mockResolvedValue(undefined)
 
-    await moveStatus(makeInquiry(), '対応中', reload)
+    await moveStatus(makeInquiry({ id: 5 }), '対応中', reload)
 
     expect(moveError.value).toBe('他のスタッフの操作により更新されています。最新の内容を確認してください')
+    expect(moveErrorInquiryId.value).toBe(5)
     expect(reload).toHaveBeenCalled()
   })
 
-  it('その他エラー時はmoveErrorをセットし、reloadは呼ばれない', async () => {
+  it('その他エラー時はmoveErrorとmoveErrorInquiryIdをセットし、reloadは呼ばれない', async () => {
     updateInquiryMock.mockRejectedValue(new Error('network error'))
-    const { moveStatus, moveError } = useBoardDrag()
+    const { moveStatus, moveError, moveErrorInquiryId } = useBoardDrag()
     const reload = vi.fn()
 
-    await moveStatus(makeInquiry(), '対応中', reload)
+    await moveStatus(makeInquiry({ id: 7 }), '対応中', reload)
 
     expect(moveError.value).toBe('network error')
+    expect(moveErrorInquiryId.value).toBe(7)
     expect(reload).not.toHaveBeenCalled()
+  })
+
+  it('clearMoveErrorは該当カードのエラーのみ解除する(詳細モーダル等、D&D以外からの更新成功時に使う)', async () => {
+    updateInquiryMock.mockRejectedValue(new Error('network error'))
+    const { moveStatus, moveError, moveErrorInquiryId, clearMoveError } = useBoardDrag()
+    const reload = vi.fn()
+
+    await moveStatus(makeInquiry({ id: 9 }), '対応中', reload)
+    expect(moveErrorInquiryId.value).toBe(9)
+
+    clearMoveError(10) // 別カードのIDを指定しても解除されない
+    expect(moveErrorInquiryId.value).toBe(9)
+
+    clearMoveError(9)
+    expect(moveError.value).toBeNull()
+    expect(moveErrorInquiryId.value).toBeNull()
+  })
+
+  it('別のカードで再度moveStatusを呼ぶと、前のカードのエラーはクリアされる', async () => {
+    updateInquiryMock.mockRejectedValueOnce(new Error('network error'))
+    updateInquiryMock.mockResolvedValueOnce({})
+    const { moveStatus, moveError, moveErrorInquiryId } = useBoardDrag()
+    const reload = vi.fn().mockResolvedValue(undefined)
+
+    await moveStatus(makeInquiry({ id: 1 }), '対応中', reload)
+    expect(moveErrorInquiryId.value).toBe(1)
+
+    await moveStatus(makeInquiry({ id: 2 }), '対応中', reload)
+    expect(moveError.value).toBeNull()
+    expect(moveErrorInquiryId.value).toBeNull()
   })
 
   it('あるカードが更新中でも、別のカードのmoveStatus呼び出しは正常に実行される', async () => {
