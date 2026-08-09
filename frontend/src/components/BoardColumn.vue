@@ -16,7 +16,7 @@ const emit = defineEmits<{
   'move-status': [payload: { inquiry: Inquiry; status: Status }]
 }>()
 
-const { inquiries, hasMore, isLoading, error, sortMode, load, loadMore, toggleSort } =
+const { inquiries, hasMore, totalCount, isLoading, error, sortMode, load, loadMore, toggleSort } =
   useInquiryColumn(props.status)
 const { draggedInquiry } = useBoardDrag()
 
@@ -50,7 +50,7 @@ defineExpose({ reload: load })
 <template>
   <!-- lg(1024px)未満は3カラムが収まらないため縦積み(1カラム)。カラム幅上限はmax-w-md(448px、lg以上でも共通)で、全幅ストレッチにも固定幅の窮屈さにもせず中間の見やすさを狙う。1024px以上は3カラムがflex-1で画面幅に応じて均等に伸縮し、448pxに達したら頭打ちになる(超ワイドモニターでカードが際限なく間延びしないため)。2xl(1536px)以上は上限をmax-w-lg(512px)に引き上げ、InquiryCard.vueの2xl:text-baseと連動させて「箱だけ広がって文字は据え置き」にならないようにする。詳細はIssue #39 -->
   <div
-    class="mx-auto flex w-full max-w-md flex-col gap-3 rounded-lg border-2 p-3 transition-colors lg:mx-0 lg:w-auto lg:flex-1 2xl:max-w-lg"
+    class="mx-auto flex w-full max-w-md min-w-0 flex-col gap-3 rounded-lg border-2 p-3 transition-colors lg:mx-0 lg:w-auto lg:flex-1 2xl:max-w-lg"
     :class="isDropTarget ? 'border-blue-500 border-dashed bg-blue-50' : 'border-transparent bg-slate-100'"
     @dragover.prevent
     @dragenter.prevent="onDragEnter"
@@ -59,7 +59,10 @@ defineExpose({ reload: load })
   >
     <div class="sticky top-0 z-10 flex flex-col gap-2 bg-slate-100 pb-2 lg:static lg:gap-3 lg:bg-transparent lg:pb-0">
       <div class="flex items-center justify-between">
-        <h2 class="font-semibold text-slate-800">{{ title }}</h2>
+        <h2 class="flex items-center gap-2 font-semibold text-slate-800">
+          {{ title }}
+          <span class="rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-600">{{ totalCount }}</span>
+        </h2>
         <button
           type="button"
           class="rounded border px-2 py-1 text-xs disabled:opacity-50"

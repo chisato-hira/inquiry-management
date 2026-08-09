@@ -9,3 +9,8 @@ two:
   name: テスト花子
   email: staff-two@example.com
   password_digest: $2a$12$vQ.sG/9SiERT7GkbjdLOuudzo7HmJ1bJ0X.7X4UaBH4VVw5JmSJSK  # Generated with BCrypt::Password.create("secret")
+
+three:
+  name: テスト次郎
+  email: staff-three@example.com
+  password_digest: $2a$12$ZAm0ofn5EkAUahCF4WLaFOTTOc1rh9rmRhYHO0CcOUFhfjGmIBb1O  # Generated with BCrypt::Password.create("secret")

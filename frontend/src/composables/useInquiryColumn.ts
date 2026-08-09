@@ -8,6 +8,7 @@ export function useInquiryColumn(status: Status) {
   const inquiries = ref<Inquiry[]>([])
   const page = ref(1)
   const hasMore = ref(false)
+  const totalCount = ref(0)
   const sortMode = ref<SortMode>('received_at')
   const isLoading = ref(true)
   const error = ref<string | null>(null)
@@ -35,6 +36,7 @@ export function useInquiryColumn(status: Status) {
       inquiries.value = mode === 'replace' ? res.inquiries : [...inquiries.value, ...res.inquiries]
       page.value = res.meta.page
       hasMore.value = res.meta.has_more
+      totalCount.value = res.meta.total_count
     } catch (e) {
       if (controller !== currentController) return
 
@@ -64,5 +66,5 @@ export function useInquiryColumn(status: Status) {
     return fetchPage(1, 'replace')
   }
 
-  return { inquiries, hasMore, isLoading, error, sortMode, load, loadMore, toggleSort }
+  return { inquiries, hasMore, totalCount, isLoading, error, sortMode, load, loadMore, toggleSort }
 }

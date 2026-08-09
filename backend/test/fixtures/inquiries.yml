@@ -21,3 +21,12 @@ two:
   priority: 中
   staff: two
   lock_version: 0
+
+three:
+  name: 田中一郎
+  email: tanaka@example.com
+  category: 解約
+  content: 解約したいので手続きを教えてください
+  status: 未対応
+  priority: 未設定
+  lock_version: 0
