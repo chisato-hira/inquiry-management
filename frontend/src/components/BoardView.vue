@@ -3,7 +3,9 @@ import { ref } from 'vue'
 import type { Inquiry, Status } from '@/types/inquiry'
 import BoardColumn from './BoardColumn.vue'
 import InquiryDetailModal from './InquiryDetailModal.vue'
+import StatsPanel from './StatsPanel.vue'
 import { useBoardDrag } from '@/composables/useBoardDrag'
+import { useStats } from '@/composables/useStats'
 
 const selectedInquiryId = ref<number | null>(null)
 
@@ -12,12 +14,14 @@ const inProgressColumn = ref<InstanceType<typeof BoardColumn> | null>(null)
 const doneColumn = ref<InstanceType<typeof BoardColumn> | null>(null)
 
 const { draggedInquiry, moveError, endDrag, moveStatus } = useBoardDrag()
+const { reload: reloadStats } = useStats()
 
 function reloadAllColumns() {
   return Promise.all([
     pendingColumn.value?.reload(),
     inProgressColumn.value?.reload(),
     doneColumn.value?.reload(),
+    reloadStats(),
   ])
 }
 
@@ -36,6 +40,8 @@ function onMoveStatus({ inquiry, status }: { inquiry: Inquiry; status: Status })
 <template>
   <div class="flex flex-col gap-3 p-4 lg:p-6">
     <p v-if="moveError" class="text-sm text-red-600">{{ moveError }}</p>
+
+    <StatsPanel />
 
     <div class="flex flex-col gap-4 lg:flex-row lg:justify-center lg:overflow-x-auto">
       <BoardColumn
