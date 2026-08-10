@@ -159,11 +159,17 @@ npm run dev
 inquiry-management/
 ├── backend/            # Ruby on Rails API（ポート 3000、Rails 8.1 / Ruby 3.4.10）
 │   ├── app/models/           # Staff, Inquiry, Comment
-│   ├── app/controllers/      # ApplicationController, SessionsController, StaffsController, InquiriesController
+│   ├── app/controllers/      # ApplicationController, SessionsController, StaffsController,
+│   │                         # InquiriesController, CommentsController, StatsController
+│   ├── app/mailers/          # InquiryMailer（開発環境はletter_openerでブラウザプレビュー）
 │   └── config/database.yml   # MySQL接続設定（docker-composeのDBに接続）
 ├── frontend/           # Vue.js + TypeScript + Vite（ポート 5173）
 │   └── src/{components,composables,api,types,utils,views}
-│       # ログイン画面・ボード画面（一覧表示、ページネーション、優先度順/受付日時順ソート、24時間経過強調）を実装済み
+│       # ログイン画面・問い合わせボード画面（一覧表示、ページネーション、優先度順/受付日時順ソート、
+│       # D&Dとプルダウンでのステータス変更、24時間経過強調）・問い合わせ詳細モーダル
+│       # （ステータス/優先度/担当者変更、対応履歴・コメント）・顧客向け問い合わせフォーム・
+│       # 統計ダッシュボード（ステータス別/カテゴリ別/担当者別集計）を実装済み。
+│       # モバイル・タブレット幅にも対応
 ├── docker-compose.yml  # MySQL（ポート 3306）
 ├── docs/               # 要件・設計ドキュメント
 └── terraform/          # AWSインフラ構成（EC2 + RDS、未実装）
@@ -171,7 +177,10 @@ inquiry-management/
 
 - `backend/` は `rails new backend --api --database=mysql` により作成した、API専用モードのRailsアプリ
 - staffs / inquiries / comments の migration・モデルは実装済み(Issue #11)
-- 参照系API(GET)とスタッフ認証(セッションCookie方式)は実装済み(Issue #13, #17)。書き込み系のうちステータス/優先度/担当者変更(Issue #32)・コメント投稿(Issue #34)は実装済み。統計ダッシュボードは未実装(今後のIssueで対応)
+- 参照系API(GET)・書き込み系API(問い合わせ登録・ステータス/優先度/担当者更新・コメント投稿)・
+  スタッフ認証(セッションCookie方式)・統計API・確認メール送信(letter_opener)まで一通り実装済み。
+  フロントエンドもログイン・ボード・詳細モーダル・顧客向けフォーム・統計ダッシュボードまで実装済み
+  (Issue #11〜#48)。インフラ構築(Terraform/AWSデプロイ)は未着手
 
 ### APIエンドポイント一覧
 
@@ -179,11 +188,14 @@ inquiry-management/
 |---|---|---|---|
 | GET | `/inquiries` | 問い合わせ一覧(status絞り込み、sort=priority\|created_at、20件ページネーション) | 必須 |
 | GET | `/inquiries/:id` | 問い合わせ詳細(対応履歴・コメントを時系列で含む) | 必須 |
+| POST | `/inquiries` | 問い合わせ登録(顧客向け、キーワード検出による優先度自動設定・確認メール送信を含む) | 不要 |
+| PATCH | `/inquiries/:id` | ステータス/優先度/担当者の更新(楽観ロック、変更時に自動記録コメントを追加) | 必須 |
 | GET | `/staffs` | 担当者ドロップダウン用の一覧(id/nameのみ) | 必須 |
 | POST | `/session` | ログイン | 不要 |
 | DELETE | `/session` | ログアウト | 必須 |
 | GET | `/session` | ログイン中スタッフの確認 | 必須 |
 | POST | `/inquiries/:id/comments` | コメント投稿(manual、投稿者はログイン中スタッフに固定) | 必須(CSRF検証あり) |
+| GET | `/stats` | 統計ダッシュボード用データ(ステータス別/カテゴリ別/担当者別集計) | 必須 |
 
 実装が進み次第、このセクションを継続して更新する。
 
