@@ -18,6 +18,19 @@ const emit = defineEmits<{
 const { draggedInquiry, movingIds, moveError, moveErrorInquiryId, startDrag, endDrag } = useBoardDrag()
 
 const overdue = computed(() => isOverdue(props.inquiry))
+
+// 優先度は「注意が必要な値だけ色を付ける」方針(問い合わせ詳細モーダルと統一)。
+// 低・未設定は強調不要なので中立のバッジ配色にする
+const priorityBadgeClass = computed(() => {
+  switch (props.inquiry.priority) {
+    case '高':
+      return 'bg-red-100 text-red-700'
+    case '中':
+      return 'bg-amber-100 text-amber-700'
+    default:
+      return 'bg-slate-100 text-slate-600'
+  }
+})
 const isMoving = computed(() => movingIds.value.has(props.inquiry.id))
 const isDragging = computed(() => draggedInquiry.value?.id === props.inquiry.id)
 const hasMoveError = computed(() => moveErrorInquiryId.value === props.inquiry.id)
@@ -53,7 +66,7 @@ function onMobileStatusChange(event: Event) {
   >
     <button type="button" class="w-full text-left" @click="emit('select', inquiry.id)">
       <p class="break-words font-medium text-slate-900">{{ inquiry.name }}</p>
-      <div class="mt-1 flex flex-wrap gap-x-3 gap-y-1 break-words text-sm text-slate-600 2xl:text-base">
+      <div class="mt-1.5 flex flex-wrap items-center gap-1.5 break-words text-sm text-slate-600 2xl:text-base">
         <span class="inline-flex items-center gap-1.5">
           <span
             class="inline-block h-2 w-2 shrink-0 rounded-full"
@@ -61,10 +74,11 @@ function onMobileStatusChange(event: Event) {
           ></span>
           {{ inquiry.category }}
         </span>
-        <span>優先度: {{ inquiry.priority ?? '未設定' }}</span>
-        <span :class="inquiry.staff ? '' : 'font-semibold text-amber-600'">
-          担当: {{ inquiry.staff?.name ?? '未割当' }}
+        <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="priorityBadgeClass">
+          {{ inquiry.priority ?? '未設定' }}
         </span>
+        <span v-if="inquiry.staff">担当: {{ inquiry.staff.name }}</span>
+        <span v-else class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">未割当</span>
       </div>
     </button>
 

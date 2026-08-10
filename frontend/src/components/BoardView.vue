@@ -64,7 +64,7 @@ function onMoveStatus({ inquiry, status }: { inquiry: Inquiry; status: Status })
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 p-4 lg:p-6">
+  <main class="flex flex-col gap-3 p-4 lg:p-6">
     <StatsPanel />
 
     <div class="flex flex-col gap-4 lg:flex-row lg:justify-center lg:overflow-x-auto">
@@ -102,5 +102,5 @@ function onMoveStatus({ inquiry, status }: { inquiry: Inquiry; status: Status })
         @updated="reloadAllColumns"
       />
     </div>
-  </div>
+  </main>
 </template>

@@ -197,13 +197,13 @@ onUnmounted(() => {
 
       <div class="hidden lg:grid lg:grid-cols-2 lg:gap-4">
         <div>
-          <h3 class="mb-2 text-sm font-semibold text-slate-800">カテゴリ別件数</h3>
+          <h2 class="mb-2 text-sm font-semibold text-slate-800">カテゴリ別件数</h2>
           <div class="relative h-48">
             <canvas ref="categoryCanvas" aria-label="カテゴリ別件数の棒グラフ(各バーに件数を表示)" role="img"></canvas>
           </div>
         </div>
         <div>
-          <h3 class="mb-2 text-sm font-semibold text-slate-800">担当者別未完了件数</h3>
+          <h2 class="mb-2 text-sm font-semibold text-slate-800">担当者別未完了件数</h2>
           <div class="relative" :style="{ height: `${staffChartHeightPx}px` }">
             <canvas ref="staffCanvas" aria-label="担当者別未完了件数の横棒グラフ(各バーに件数を表示)" role="img"></canvas>
           </div>
