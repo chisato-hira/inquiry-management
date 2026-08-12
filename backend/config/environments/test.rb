@@ -31,6 +31,10 @@ Rails.application.configure do
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
 
+  # queue_adapterは明示設定しない。設定するとActiveJob::TestHelperの自動テストアダプター
+  # 置換(_queue_adapterがnilの場合のみ動作する)が効かなくなり、assert_enqueued_emails等が
+  # 実際のsolid_queueに job を積んでしまうため。
+
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
