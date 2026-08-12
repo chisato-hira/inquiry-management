@@ -121,6 +121,37 @@ class InquiriesControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "システムコメントの自動作成に失敗しても問い合わせ登録は成功しステータス201が返る" do
+    original_save_bang = Comment.instance_method(:save!)
+    Comment.define_method(:save!) { raise ActiveRecord::RecordInvalid.new(self) }
+
+    begin
+      assert_difference "Inquiry.count", 1 do
+        post inquiries_url, params: { inquiry: valid_inquiry_params }
+      end
+
+      assert_response :created
+      assert_not_nil JSON.parse(response.body)["id"]
+    ensure
+      Comment.define_method(:save!, original_save_bang)
+    end
+  end
+
+  test "確認メールのキューイングに失敗しても問い合わせ登録は成功しステータス201が返る" do
+    original_deliver_later = ActionMailer::MessageDelivery.instance_method(:deliver_later)
+    ActionMailer::MessageDelivery.define_method(:deliver_later) { |*| raise StandardError, "queue backend unavailable" }
+
+    begin
+      assert_difference "Inquiry.count", 1 do
+        post inquiries_url, params: { inquiry: valid_inquiry_params }
+      end
+
+      assert_response :created
+    ensure
+      ActionMailer::MessageDelivery.define_method(:deliver_later, original_deliver_later)
+    end
+  end
+
   test "未ログインで更新すると401になる" do
     inquiry = inquiries(:one)
 

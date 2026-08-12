@@ -44,15 +44,26 @@ class InquiriesController < ApplicationController
       return render_error(inquiry.errors.full_messages.join(" / "))
     end
 
-    ActiveRecord::Base.transaction do
-      inquiry.comments.create!(comment_type: "system", staff: nil, content: "問い合わせを受け付けました")
+    # inquiry自体は既に保存済みのため、以降のシステムコメント作成・確認メール送信が
+    # 失敗しても顧客に「登録失敗」と誤認させて再送信(=重複登録)させないよう、
+    # 例外は握りつぶしてエラーレポートに記録するのみに留める(updateアクションとは非対称)。
+    begin
+      ActiveRecord::Base.transaction do
+        inquiry.comments.create!(comment_type: "system", staff: nil, content: "問い合わせを受け付けました")
 
-      if inquiry.priority_auto_set_by_keyword?
-        inquiry.comments.create!(comment_type: "system", staff: nil, content: "キーワード検出により優先度を「高」に自動設定しました")
+        if inquiry.priority_auto_set_by_keyword?
+          inquiry.comments.create!(comment_type: "system", staff: nil, content: "キーワード検出により優先度を「高」に自動設定しました")
+        end
       end
+    rescue StandardError => e
+      Rails.error.report(e, handled: true, context: { inquiry_id: inquiry.id })
     end
 
-    InquiryMailer.confirmation(inquiry).deliver_later
+    begin
+      InquiryMailer.confirmation(inquiry).deliver_later
+    rescue StandardError => e
+      Rails.error.report(e, handled: true, context: { inquiry_id: inquiry.id })
+    end
 
     render json: inquiry_json(inquiry), status: :created
   end
