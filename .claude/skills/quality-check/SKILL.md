@@ -22,7 +22,7 @@ cd backend && eval "$(rbenv init -)" && <command>
 
 コードを読みながら、以下の観点を必ず確認する。見つかった場合は「なぜ問題か」「実害が出るタイミング(例: 本番デプロイ時)」まで添えて報告する。まだ実装されていない機能(Issue履歴・CLAUDE.md・関連docsで「次のIssueで対応」と明記されているもの)を「未実装だから問題」として報告しない。
 
-- 設定ファイルの配置ミス(例: `.github/workflows/*.yml` や `.github/dependabot.yml` がサブディレクトリ(`backend/.github` 等)に置かれていて、リポジトリルートでないため実際には発火しない。2026-08-14時点で未解消・指摘のみに留める方針を確認済み。次回チェック時も解消済みかどうか必ず再確認すること)
+- 設定ファイルの配置ミス(例: `.github/workflows/*.yml` や `.github/dependabot.yml` がサブディレクトリ(`backend/.github` 等)に置かれていて、リポジトリルートでないため実際には発火しない)
 - 環境変数化されていないハードコード値(例: フロントエンドの `API_BASE_URL` が `http://localhost:3000` 固定、バックエンドCORSの許可originが `http://localhost:5173` 固定など。本番AWS環境(`docs/aws-infrastructure.md`)へのデプロイ時に破綻する)
 - セッションCookie認証を使っているのにCSRF対策(`protect_from_forgery`相当)が入っていない、など標準的なRailsのセキュリティプラクティスからの逸脱(現状GET中心で実害がなくても、書き込み系エンドポイントが増える前に指摘する)
 - CLAUDE.mdのセクション10(アーキテクチャ概要)が実装の進行に追従できているか(CLAUDE.md自身が「実装が進み次第追記する」と明記している)
