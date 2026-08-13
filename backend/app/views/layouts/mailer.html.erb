@@ -7,9 +7,9 @@
     <meta name="supported-color-schemes" content="light">
     <style>
       /* max-width指定を解釈しない一部クライアント向けのフォールバック */
-      @media only screen and (max-width: 520px) {
+      @media only screen and (max-width: 640px) {
         .email-container { width: 100% !important; }
-        .email-body, .email-header, .email-footer { padding-left: 20px !important; padding-right: 20px !important; }
+        .email-body, .email-header, .email-footer { padding-left: 24px !important; padding-right: 24px !important; }
       }
     </style>
     <!--[if mso]>
@@ -29,26 +29,26 @@
   <body style="margin:0; padding:0; background-color:#f8fafc;" bgcolor="#f8fafc">
     <table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color:#f8fafc;" bgcolor="#f8fafc">
       <tr>
-        <td align="center" style="padding:24px 16px;">
+        <td align="center" style="padding:40px 20px;">
           <!--[if mso]>
-          <table role="presentation" width="480" align="center" cellpadding="0" cellspacing="0"><tr><td>
+          <table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0"><tr><td>
           <![endif]-->
-          <table role="presentation" width="480" border="0" cellpadding="0" cellspacing="0" class="email-container" style="width:480px; max-width:100%; background-color:#ffffff; border:1px solid #e2e8f0; border-radius:8px;" bgcolor="#ffffff">
+          <table role="presentation" width="600" border="0" cellpadding="0" cellspacing="0" class="email-container" style="width:600px; max-width:100%; background-color:#ffffff; border:1px solid #e2e8f0; border-radius:8px;" bgcolor="#ffffff">
             <tr>
-              <td height="4" style="height:4px; font-size:0; line-height:4px; background-color:#1e293b;" bgcolor="#1e293b">&nbsp;</td>
+              <td height="6" style="height:6px; font-size:0; line-height:6px; background-color:#1e293b;" bgcolor="#1e293b">&nbsp;</td>
             </tr>
             <tr>
-              <td class="email-header" style="padding:24px 32px 4px; font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Helvetica Neue',Arial,sans-serif;">
-                <span style="color:#1e293b; font-size:14px; font-weight:600;">お問い合わせ窓口</span>
+              <td class="email-header" style="padding:32px 40px 8px; font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Helvetica Neue',Arial,sans-serif;">
+                <span style="color:#1e293b; font-size:18px; font-weight:600;">お問い合わせ窓口</span>
               </td>
             </tr>
             <tr>
-              <td class="email-body" style="padding:16px 32px 24px; font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Helvetica Neue',Arial,sans-serif;">
+              <td class="email-body" style="padding:20px 40px 32px; font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Helvetica Neue',Arial,sans-serif;">
                 <%= yield %>
               </td>
             </tr>
             <tr>
-              <td class="email-footer" style="border-top:1px solid #e2e8f0; padding:14px 32px; background-color:#f8fafc; font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Helvetica Neue',Arial,sans-serif;" bgcolor="#f8fafc">
+              <td class="email-footer" style="border-top:1px solid #e2e8f0; padding:18px 40px; background-color:#f8fafc; font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Helvetica Neue',Arial,sans-serif;" bgcolor="#f8fafc">
                 <span style="color:#94a3b8; font-size:12px;">本メールはお問い合わせ窓口より自動送信されています。</span>
               </td>
             </tr>
