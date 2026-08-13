@@ -1,15 +1,27 @@
-<p><%= @inquiry.name %>様</p>
+<% font = "font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Helvetica Neue',Arial,sans-serif;" %>
 
-<p>お問い合わせありがとうございました。<br>
-確認のご連絡までしばらくお待ちください。</p>
+<p style="margin:0 0 16px; font-size:14px; color:#0f172a; font-weight:600; <%= font %>"><%= @inquiry.name %>様</p>
 
-<hr>
-
-<p>
-  受付日時: <%= @inquiry.created_at.strftime("%Y年%m月%d日 %H:%M") %><br>
-  カテゴリ: <%= @inquiry.category %>
+<p style="margin:0 0 20px; font-size:14px; color:#475569; line-height:1.7; <%= font %>">
+  お問い合わせありがとうございました。<br>
+  確認のご連絡までしばらくお待ちください。
 </p>
-<p>
-  お問い合わせ内容:<br>
-  <%= simple_format(@inquiry.content) %>
-</p>
+
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width:100%; margin-bottom:20px; font-size:13px; color:#475569; <%= font %>">
+  <tr>
+    <td style="padding:4px 0; width:88px; color:#64748b; <%= font %>">受付日時</td>
+    <td style="padding:4px 0; color:#0f172a; <%= font %>"><%= @inquiry.created_at.strftime("%Y年%m月%d日 %H:%M") %></td>
+  </tr>
+  <tr>
+    <td style="padding:4px 0; color:#64748b; <%= font %>">カテゴリ</td>
+    <td style="padding:4px 0; color:#0f172a; <%= font %>">
+      <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background-color:<%= @category_color %>;">&nbsp;</span>
+      <%= @inquiry.category %>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 6px; font-size:13px; font-weight:600; color:#0f172a; <%= font %>">お問い合わせ内容</p>
+<div style="padding:12px; background-color:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; font-size:14px; color:#334155; line-height:1.7; <%= font %>">
+  <%= simple_format(@inquiry.content, { style: "margin:0 0 1em; #{font}" }) %>
+</div>
