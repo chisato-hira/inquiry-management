@@ -13,7 +13,7 @@ class InquiryMailerTest < ActionMailer::TestCase
     mail = InquiryMailer.confirmation(inquiry)
 
     assert_equal [ "yamada@example.com" ], mail.to
-    assert_equal "【問い合わせ管理】お問い合わせを受け付けました", mail.subject
+    assert_equal "【お問い合わせ窓口】お問い合わせを受け付けました", mail.subject
     assert_match "山田太郎", mail.text_part.decoded
     assert_match "画面が表示されません", mail.text_part.decoded
     assert_match "山田太郎", mail.html_part.decoded
