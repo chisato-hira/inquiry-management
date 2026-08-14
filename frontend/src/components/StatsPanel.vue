@@ -139,15 +139,21 @@ function resizeCharts() {
 }
 
 // pre-flush(デフォルト)だとDOM更新前に走ってしまい、初回ロード時はcanvasがまだ
-// マウントされていないためグラフが作られない。post-flushにしてDOM更新後に実行する
+// マウントされていないためグラフが作られない。post-flushにしてDOM更新後に実行する。
+// これはBoardView側でのステータス変更等によるreload()後の再描画をカバーするためのもの。
 watch(stats, renderCharts, { flush: 'post' })
 
-onMounted(() => {
-  ensureLoaded()
+onMounted(async () => {
   // lg:ブレークポイントをまたいでhidden→表示に変わる際、canvas生成時点では
   // 祖先がdisplay:noneだったため、Chart.js自身のResizeObserverだけに頼らず
   // window resizeで明示的にresize()する
   window.addEventListener('resize', resizeCharts)
+
+  // statsが既に読み込み済みの場合、ensureLoaded()は再取得せずに即resolveするため
+  // statsの値は変化せず、上のwatchは発火しない(ログイン後の再マウント等で起きる)。
+  // マウント時点でのstatsの状態に関わらず必ず描画されるよう、ここで明示的に呼ぶ
+  await ensureLoaded()
+  renderCharts()
 })
 onUnmounted(() => {
   window.removeEventListener('resize', resizeCharts)
