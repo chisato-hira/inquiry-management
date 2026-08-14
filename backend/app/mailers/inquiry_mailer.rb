@@ -5,7 +5,7 @@ class InquiryMailer < ApplicationMailer
     "使い方" => "#eb6834",
     "解約" => "#1baf7a",
     "不具合" => "#eda100",
-    "その他" => "#e87ba4",
+    "その他" => "#e87ba4"
   }.freeze
 
   def confirmation(inquiry)
