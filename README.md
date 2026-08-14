@@ -77,7 +77,7 @@ Vue.js(SPA)がRails APIへJSON形式でリクエストを送り、Railsが認証
 
 ```mermaid
 graph LR
-    A[Vue.js SPA] -->|HTTP/JSON<br/>session Cookie + CSRFトークン| B[Rails API]
+    A[Vue.js SPA] -->|"HTTP/JSON (session Cookie + CSRFトークン)"| B[Rails API]
     B --> C[(MySQL)]
 ```
 
