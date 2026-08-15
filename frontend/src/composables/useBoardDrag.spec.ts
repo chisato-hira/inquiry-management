@@ -118,6 +118,20 @@ describe('useBoardDrag', () => {
     expect(moveErrorInquiryId.value).toBeNull()
   })
 
+  it('clearAllMoveErrorsはどのカードのIDでも無条件にエラーを解除する(検索結果画面への遷移時に使う)', async () => {
+    updateInquiryMock.mockRejectedValue(new Error('network error'))
+    const { moveStatus, moveError, moveErrorInquiryId, clearAllMoveErrors } = useBoardDrag()
+    const reload = vi.fn()
+
+    await moveStatus(makeInquiry({ id: 9 }), '対応中', reload)
+    expect(moveErrorInquiryId.value).toBe(9)
+
+    clearAllMoveErrors()
+
+    expect(moveError.value).toBeNull()
+    expect(moveErrorInquiryId.value).toBeNull()
+  })
+
   it('別のカードで再度moveStatusを呼ぶと、前のカードのエラーはクリアされる', async () => {
     updateInquiryMock.mockRejectedValueOnce(new Error('network error'))
     updateInquiryMock.mockResolvedValueOnce({})

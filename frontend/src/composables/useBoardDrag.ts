@@ -55,5 +55,22 @@ export function useBoardDrag() {
     }
   }
 
-  return { draggedInquiry, movingIds, moveError, moveErrorInquiryId, startDrag, endDrag, moveStatus, clearMoveError }
+  // ボードとは別画面(検索結果など)に遷移した際、その画面には無関係な
+  // moveErrorが残ったまま漏れ出さないよう、無条件にクリアする
+  function clearAllMoveErrors() {
+    moveError.value = null
+    moveErrorInquiryId.value = null
+  }
+
+  return {
+    draggedInquiry,
+    movingIds,
+    moveError,
+    moveErrorInquiryId,
+    startDrag,
+    endDrag,
+    moveStatus,
+    clearMoveError,
+    clearAllMoveErrors,
+  }
 }
