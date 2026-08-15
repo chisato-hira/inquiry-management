@@ -34,6 +34,18 @@ export async function fetchInquiries(params: {
   return request<InquiriesResponse>(url, { signal: params.signal })
 }
 
+export async function searchInquiries(params: {
+  q: string
+  page: number
+  signal?: AbortSignal
+}): Promise<InquiriesResponse> {
+  const url = new URL('/inquiries/search', API_BASE_URL)
+  url.searchParams.set('q', params.q)
+  url.searchParams.set('page', String(params.page))
+
+  return request<InquiriesResponse>(url, { signal: params.signal })
+}
+
 export function fetchInquiry(id: number, signal?: AbortSignal): Promise<InquiryDetail> {
   return request<InquiryDetail>(new URL(`/inquiries/${id}`, API_BASE_URL), { signal })
 }

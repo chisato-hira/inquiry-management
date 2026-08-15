@@ -33,6 +33,27 @@ class InquiriesController < ApplicationController
     }
   end
 
+  def search
+    keyword = params[:q].to_s.strip
+    return render_error("検索キーワードを入力してください", status: :bad_request) if keyword.blank?
+
+    scope = Inquiry.includes(:staff).search(keyword).ordered_by_received_at
+
+    page = [ params[:page].to_i, 1 ].max
+    total_count = scope.count
+    inquiries = scope.limit(PER_PAGE).offset((page - 1) * PER_PAGE)
+
+    render json: {
+      inquiries: inquiries.map { |inquiry| inquiry_json(inquiry) },
+      meta: {
+        page: page,
+        per_page: PER_PAGE,
+        total_count: total_count,
+        has_more: total_count > page * PER_PAGE
+      }
+    }
+  end
+
   def show
     inquiry = Inquiry.includes(:staff, comments: :staff).find(params[:id])
     comments = inquiry.comments.sort_by { |comment| [ comment.created_at, comment.id ] }

@@ -27,6 +27,13 @@ class Inquiry < ApplicationRecord
     order(Arel.sql("FIELD(COALESCE(priority, '未設定'), '高', '中', '低', '未設定') ASC, created_at ASC, id ASC"))
   }
   scope :ordered_by_received_at, -> { order(created_at: :asc, id: :asc) }
+  scope :search, ->(query) {
+    keyword = query.to_s.strip
+    next none if keyword.blank?
+
+    pattern = "%#{sanitize_sql_like(keyword)}%"
+    where("name LIKE :p OR email LIKE :p OR content LIKE :p", p: pattern)
+  }
 
   def priority_auto_set_by_keyword?
     @priority_auto_set_by_keyword.present?

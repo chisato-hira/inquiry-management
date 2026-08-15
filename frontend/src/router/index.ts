@@ -5,8 +5,11 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'staff-area',
       component: () => import('@/views/StaffAreaView.vue'),
+      children: [
+        { path: '', name: 'staff-area', component: () => import('@/components/BoardView.vue') },
+        { path: 'search', name: 'search', component: () => import('@/views/SearchResultView.vue') },
+      ],
     },
     {
       path: '/contact',

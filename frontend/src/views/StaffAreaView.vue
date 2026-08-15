@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import BoardView from '@/components/BoardView.vue'
 import BoardHeader from '@/components/BoardHeader.vue'
+import SearchBox from '@/components/SearchBox.vue'
 import LoginView from '@/views/LoginView.vue'
 import { useAuth } from '@/composables/useAuth'
 
@@ -16,7 +16,8 @@ onMounted(() => {
   <p v-if="isCheckingSession" class="p-6 text-sm text-slate-500">読み込み中...</p>
   <template v-else-if="currentStaff">
     <BoardHeader />
-    <BoardView />
+    <SearchBox />
+    <RouterView />
   </template>
   <LoginView v-else />
 </template>
