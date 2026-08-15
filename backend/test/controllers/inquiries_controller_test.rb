@@ -21,6 +21,20 @@ class InquiriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "完了ステータスは直近30日以内に更新されたものだけ一覧に含まれる" do
+    log_in_as(staffs(:one))
+
+    recent = Inquiry.create!(valid_inquiry_params.merge(status: "完了", staff: staffs(:one)))
+    old = Inquiry.create!(valid_inquiry_params.merge(status: "完了", staff: staffs(:one)))
+    old.update_column(:updated_at, 31.days.ago)
+
+    get inquiries_url, params: { status: "完了" }
+
+    ids = JSON.parse(response.body)["inquiries"].map { |inquiry| inquiry["id"] }
+    assert_includes ids, recent.id
+    assert_not_includes ids, old.id
+  end
+
   test "ログイン済みなら詳細を取得できる" do
     log_in_as(staffs(:one))
 

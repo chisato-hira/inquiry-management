@@ -3,6 +3,7 @@ class InquiriesController < ApplicationController
   before_action :verify_csrf_token!, only: %i[update]
 
   PER_PAGE = 20
+  COMPLETED_RETENTION = 30.days
 
   def index
     scope = Inquiry.includes(:staff)
@@ -11,6 +12,8 @@ class InquiriesController < ApplicationController
       return render_error("invalid status", status: :bad_request) unless Inquiry::STATUSES.include?(params[:status])
 
       scope = scope.where(status: params[:status])
+      # 完了は際限なく溜まっていくため、ボードを見づらくしないよう直近30日以内のみをデフォルトで表示する
+      scope = scope.where(updated_at: COMPLETED_RETENTION.ago..) if params[:status] == "完了"
     end
 
     scope = params[:sort] == "priority" ? scope.ordered_by_priority : scope.ordered_by_received_at
