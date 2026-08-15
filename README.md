@@ -14,17 +14,17 @@
 
 ### ログイン〜ボード画面(統計ダッシュボード・カンバン一覧)
 
-https://github.com/user-attachments/assets/8c7f4183-b989-45fe-a062-9207473e4821
+<!-- ここにGitHub上でアップロードした動画のMarkdownを貼り付け -->
 
 ### 問い合わせ詳細の確認・編集
 
 ステータス/優先度/担当者の変更、対応履歴・コメントの投稿。
 
-https://github.com/user-attachments/assets/3b57b265-dcab-4d3a-85ca-1d1dcb53b990
+<!-- ここにGitHub上でアップロードした動画のMarkdownを貼り付け -->
 
 ### 顧客向け問い合わせフォーム〜確認メール
 
-https://github.com/user-attachments/assets/a045d2f5-dfee-404c-874c-44212eb455bb
+<!-- ここにGitHub上でアップロードした動画のMarkdownを貼り付け -->
 
 ---
 
