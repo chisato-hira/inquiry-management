@@ -35,6 +35,138 @@ class InquiriesControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes ids, old.id
   end
 
+  test "未ログイン状態で検索すると401になる" do
+    get search_inquiries_url, params: { q: "山田" }
+
+    assert_response :unauthorized
+  end
+
+  test "ログイン済みなら名前で検索できる" do
+    log_in_as(staffs(:one))
+    inquiry = Inquiry.create!(valid_inquiry_params.merge(name: "検索太郎"))
+
+    get search_inquiries_url, params: { q: "検索太郎" }
+
+    ids = JSON.parse(response.body)["inquiries"].map { |i| i["id"] }
+    assert_includes ids, inquiry.id
+  end
+
+  test "ログイン済みならメールで検索できる" do
+    log_in_as(staffs(:one))
+    inquiry = Inquiry.create!(valid_inquiry_params.merge(email: "search-target@example.com"))
+
+    get search_inquiries_url, params: { q: "search-target" }
+
+    ids = JSON.parse(response.body)["inquiries"].map { |i| i["id"] }
+    assert_includes ids, inquiry.id
+  end
+
+  test "ログイン済みなら問い合わせ内容で検索できる" do
+    log_in_as(staffs(:one))
+    inquiry = Inquiry.create!(valid_inquiry_params.merge(content: "検索キーワードを含む問い合わせ内容です"))
+
+    get search_inquiries_url, params: { q: "検索キーワード" }
+
+    ids = JSON.parse(response.body)["inquiries"].map { |i| i["id"] }
+    assert_includes ids, inquiry.id
+  end
+
+  test "名前・メール・内容のいずれにも一致しない場合はヒットしない" do
+    log_in_as(staffs(:one))
+    inquiry = Inquiry.create!(valid_inquiry_params.merge(name: "無関係太郎", email: "unrelated@example.com", content: "無関係な内容です"))
+
+    get search_inquiries_url, params: { q: "絶対に一致しないはずのキーワード12345" }
+
+    ids = JSON.parse(response.body)["inquiries"].map { |i| i["id"] }
+    assert_not_includes ids, inquiry.id
+  end
+
+  test "検索は完了ステータスかつ30日超でも結果に含まれる" do
+    log_in_as(staffs(:one))
+    old = Inquiry.create!(valid_inquiry_params.merge(name: "古い完了太郎", status: "完了", staff: staffs(:one)))
+    old.update_column(:updated_at, 31.days.ago)
+
+    get search_inquiries_url, params: { q: "古い完了太郎" }
+
+    ids = JSON.parse(response.body)["inquiries"].map { |i| i["id"] }
+    assert_includes ids, old.id
+  end
+
+  test "検索は全ステータス横断で結果に含まれる" do
+    log_in_as(staffs(:one))
+    todo = Inquiry.create!(valid_inquiry_params.merge(name: "横断太郎A", status: "未対応"))
+    in_progress = Inquiry.create!(valid_inquiry_params.merge(name: "横断太郎B", status: "対応中"))
+    done = Inquiry.create!(valid_inquiry_params.merge(name: "横断太郎C", status: "完了", staff: staffs(:one)))
+
+    get search_inquiries_url, params: { q: "横断太郎" }
+
+    ids = JSON.parse(response.body)["inquiries"].map { |i| i["id"] }
+    assert_includes ids, todo.id
+    assert_includes ids, in_progress.id
+    assert_includes ids, done.id
+  end
+
+  test "空文字で検索すると400になる" do
+    log_in_as(staffs(:one))
+
+    get search_inquiries_url, params: { q: "" }
+
+    assert_response :bad_request
+  end
+
+  test "空白のみのクエリだと400になる" do
+    log_in_as(staffs(:one))
+
+    get search_inquiries_url, params: { q: "   " }
+
+    assert_response :bad_request
+  end
+
+  test "qパラメータ自体が無いと400になる" do
+    log_in_as(staffs(:one))
+
+    get search_inquiries_url
+
+    assert_response :bad_request
+  end
+
+  test "検索語のワイルドカード文字はエスケープされ誤爆しない" do
+    log_in_as(staffs(:one))
+    target = Inquiry.create!(valid_inquiry_params.merge(name: "割引太郎", content: "割引率90%が適用されませんでした"))
+    unrelated = Inquiry.create!(valid_inquiry_params.merge(name: "無関係太郎2", content: "90 percent unrelated content here"))
+
+    get search_inquiries_url, params: { q: "90%" }
+
+    ids = JSON.parse(response.body)["inquiries"].map { |i| i["id"] }
+    assert_includes ids, target.id
+    assert_not_includes ids, unrelated.id
+  end
+
+  test "検索結果のページネーションmetaはindexと同一形式で返る" do
+    log_in_as(staffs(:one))
+    Inquiry.create!(valid_inquiry_params.merge(name: "meta形式確認太郎"))
+
+    get search_inquiries_url, params: { q: "meta形式確認太郎" }
+
+    meta = JSON.parse(response.body)["meta"]
+    assert_equal %w[page per_page total_count has_more], meta.keys
+  end
+
+  test "検索で21件以上ヒットする場合、has_moreがtrueになり2ページ目を取得できる" do
+    log_in_as(staffs(:one))
+    21.times { |i| Inquiry.create!(valid_inquiry_params.merge(name: "大量検索太郎#{i}")) }
+
+    get search_inquiries_url, params: { q: "大量検索太郎" }
+    first_page = JSON.parse(response.body)
+    assert_equal 20, first_page["inquiries"].size
+    assert first_page["meta"]["has_more"]
+
+    get search_inquiries_url, params: { q: "大量検索太郎", page: 2 }
+    second_page = JSON.parse(response.body)
+    assert_equal 1, second_page["inquiries"].size
+    assert_not second_page["meta"]["has_more"]
+  end
+
   test "ログイン済みなら詳細を取得できる" do
     log_in_as(staffs(:one))
 

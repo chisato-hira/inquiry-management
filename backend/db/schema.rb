@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_12_081146) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_15_145058) do
   create_table "comments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "comment_type", limit: 10, default: "manual", null: false
     t.text "content", null: false
@@ -34,6 +34,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_12_081146) do
     t.string "status", limit: 20, default: "未対応", null: false
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "idx_inquiries_created_at"
+    t.index ["email"], name: "idx_inquiries_email"
+    t.index ["name"], name: "idx_inquiries_name"
     t.index ["staff_id"], name: "idx_inquiries_staff_id"
     t.index ["status"], name: "idx_inquiries_status"
   end
