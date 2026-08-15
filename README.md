@@ -24,7 +24,7 @@
 
 ### 顧客向け問い合わせフォーム〜確認メール
 
-<!-- ここにGitHub上でアップロードした動画のMarkdownを貼り付け -->
+https://github.com/user-attachments/assets/a045d2f5-dfee-404c-874c-44212eb455bb
 
 ---
 
