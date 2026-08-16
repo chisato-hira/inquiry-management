@@ -1,8 +1,9 @@
 import { ApiError } from './ApiError'
 
-// 本番ビルドではnginxがフロントエンド・APIを同一オリジンで配信するため相対パス(空文字)にする。
+// 本番ビルドではnginxがフロントエンド・APIを同一オリジンで配信するため、実際に配信されている
+// オリジンをそのまま使う(空文字にすると `new URL(path, API_BASE_URL)` がbase不正で例外になるため)。
 // 開発時はVite(5173)とRails(3000)がオリジンが異なるため、絶対URLで指定する。
-export const API_BASE_URL = import.meta.env.PROD ? '' : 'http://localhost:3000'
+export const API_BASE_URL = import.meta.env.PROD ? window.location.origin : 'http://localhost:3000'
 
 const FALLBACK_ERROR_MESSAGE = 'リクエストに失敗しました'
 
