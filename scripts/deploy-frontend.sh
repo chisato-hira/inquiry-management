@@ -31,6 +31,9 @@ ssh $SSH_OPTS "ec2-user@$EC2_IP" '
   if [ -f /etc/nginx/conf.d/default.conf ]; then
     sudo mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.bak
   fi &&
+  if grep -q "root         /usr/share/nginx/html;" /etc/nginx/nginx.conf; then
+    sudo sed -i "/^    server {\$/,/^    }\$/d" /etc/nginx/nginx.conf
+  fi &&
   sudo nginx -t &&
   sudo systemctl reload nginx
 '
