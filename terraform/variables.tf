@@ -37,3 +37,16 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+# --- HTTPS化用のDuckDNSサブドメイン(例: inquiry-management.duckdns.org) ---
+variable "duckdns_domain" {
+  description = "Let's Encrypt証明書の発行先ドメイン(DuckDNSのサブドメイン)"
+  type        = string
+}
+
+# --- DuckDNSのAPIトークン(DNS-01チャレンジでのTXTレコード更新に使用。terraform.tfvarsで設定) ---
+variable "duckdns_token" {
+  description = "DuckDNSのAPIトークン"
+  type        = string
+  sensitive   = true
+}

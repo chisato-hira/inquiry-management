@@ -15,11 +15,20 @@ resource "aws_security_group" "ec2" {
     cidr_blocks = [var.my_ip_cidr]
   }
 
-  # --- フロントエンド・API配信(80番/nginx経由) 自分のIPのみ ---
+  # --- フロントエンド・API配信(80番/nginx経由、HTTPSへのリダイレクト用) 自分のIPのみ ---
   ingress {
     description = "App via nginx - my IP only"
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip_cidr]
+  }
+
+  # --- フロントエンド・API配信(443番/nginx経由、HTTPS) 自分のIPのみ ---
+  ingress {
+    description = "App via nginx (HTTPS) - my IP only"
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     cidr_blocks = [var.my_ip_cidr]
   }
