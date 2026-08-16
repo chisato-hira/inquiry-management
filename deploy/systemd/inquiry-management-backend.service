@@ -1,0 +1,15 @@
+[Unit]
+Description=Inquiry Management Backend (Rails)
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/opt/app/backend
+EnvironmentFile=/opt/app/backend/.env.production
+ExecStart=/usr/local/bin/bundle exec puma -C config/puma.rb
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

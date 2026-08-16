@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { request } from './http'
+import { request, resolveApiBaseUrl } from './http'
 import { ApiError } from './ApiError'
 
 function mockFetchOnce(response: Partial<Response> & { json?: () => Promise<unknown> }) {
@@ -13,6 +13,22 @@ function mockFetchOnce(response: Partial<Response> & { json?: () => Promise<unkn
     }),
   )
 }
+
+describe('resolveApiBaseUrl', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('本番(isProd=true)ではwindow.location.originを使う', () => {
+    vi.stubGlobal('window', { location: { origin: 'https://example.com' } })
+
+    expect(resolveApiBaseUrl(true)).toBe('https://example.com')
+  })
+
+  it('開発時(isProd=false)はhttp://localhost:3000を使う', () => {
+    expect(resolveApiBaseUrl(false)).toBe('http://localhost:3000')
+  })
+})
 
 describe('request', () => {
   afterEach(() => {

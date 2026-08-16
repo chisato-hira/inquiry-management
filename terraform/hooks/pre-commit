@@ -1,0 +1,11 @@
+#!/bin/sh
+# gitleaks でステージ済みの変更内容をスキャンし、機密情報らしき文字列があればコミットを中止する。
+# 有効化方法（初回のみ）:
+#   ln -s ../../terraform/hooks/pre-commit .git/hooks/pre-commit
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "gitleaks が見つかりません。'brew install gitleaks' でインストールしてください。" >&2
+  exit 1
+fi
+
+gitleaks protect --staged --redact -v

@@ -57,3 +57,26 @@ graph TD
 
 - EC2(t3.micro)・RDS(db.t4g.micro、20GB gp3)は、前回同様AWS無料利用枠の対象範囲内で構成する
 - 新規の外部サービス(メール配信サービス等)は導入しないため、追加費用が発生する要素はない
+- EC2のCPUクレジットは`ec2.tf`で`standard`に固定している。AWSのデフォルトである`unlimited`のままだと、クレジットを使い切った後もベースラインを超えて動作し続け、その超過分が無料枠外の課金対象になる(Rubyのソースビルドのような高負荷処理でクレジットを使い切った際に実際に発生した)
+
+---
+
+## 6. デプロイ時の注意点(実機検証で判明したもの)
+
+前回(task-management)はJavaをSDKMAN経由でビルド済みバイナリとして導入していたのに対し、今回のRuby(rbenv+ruby-build)はソースからのビルドになるため、t3.microの限られたリソースで以下の問題が実際に発生した。`ec2.tf`のuser_dataで対応済みだが、他の言語・構成でEC2上でのビルドを行う場合は同様の問題が起きうるため記録しておく。
+
+- **メモリ不足によるビルド失敗**: t3.micro(メモリ1GB、スワップなし)でRubyをソースビルドすると、OOM Killerがgccのプロセスを強制終了させビルドが失敗する。`user_data`でスワップ領域(2GB)を追加し、ビルドの並列数(`MAKE_OPTS`)を1に制限することで解消した
+- **`/tmp`の容量不足によるビルド失敗**: Amazon Linux 2023の`/tmp`はtmpfs(メモリ上、約459MBが上限)で、ディスク自体は空きがあってもビルド中の一時ファイルがここに書き込まれて溢れる。`TMPDIR`をディスク上の`/var/tmp`に変更することで解消した
+- **`rsync`が標準で入っていない**: デプロイスクリプト(`scripts/deploy-backend.sh`)でのソース転送は、Amazon Linux 2023に標準で入っていない`rsync`ではなく`tar`+`ssh`を使っている
+- **nginx.conf組み込みのデフォルトサーバーブロックとの競合**: Amazon Linux 2023のnginxパッケージは、`conf.d/default.conf`ではなく`nginx.conf`本体に`server_name _;`のデフォルトサーバーブロックを直接含んでいる。`deploy/nginx/inquiry-management.conf`と競合するため、デプロイスクリプトで無効化している
+- **本番DBに初回スタッフアカウントが存在しない**: `db/seeds.rb`は`return unless Rails.env.development?`で本番実行を意図的にガードしているため、`db:prepare`だけでは本番にスタッフアカウントが1件も作成されない。初回は以下のように`rails runner`で手動作成する必要がある
+
+  ```bash
+  ssh -i ~/.ssh/inquiry-management-key ec2-user@<EC2のIP> "
+    cd /opt/app/backend &&
+    set -a && source .env.production && set +a &&
+    bundle exec rails runner '
+      Staff.create!(name: \"担当者名\", email: \"staff@example.com\", password: \"十分な強度のパスワード\")
+    '
+  "
+  ```
