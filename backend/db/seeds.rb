@@ -2,6 +2,10 @@
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
 
+# デモ用のスタッフアカウント(パスワードが公開コード上に書かれている)・ダミーの
+# 問い合わせデータを本番で誤って作成しないよう、開発環境限定にする
+return unless Rails.env.development?
+
 staff_seed = [
   { name: "佐藤 花子", email: "sato@example.com", password: "password123" },
   { name: "鈴木 太郎", email: "suzuki@example.com", password: "password123" },
