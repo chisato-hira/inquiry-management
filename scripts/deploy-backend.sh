@@ -64,11 +64,12 @@ ssh $SSH_OPTS "ec2-user@$EC2_IP" "sudo mv /tmp/inquiry-management-backend.servic
 echo "==> backendサービスを(再)起動中..."
 ssh $SSH_OPTS "ec2-user@$EC2_IP" "sudo systemctl enable inquiry-management-backend && sudo systemctl restart inquiry-management-backend"
 
-# --- 7. 起動確認(固定sleepではなくリトライする) ---
+# --- 7. 起動確認(固定sleepではなくリトライする)
+#     3000番はセキュリティグループで外部公開していないため、EC2内部からlocalhost宛にcurlする ---
 echo "==> 起動確認中(最大60秒、5秒間隔でリトライ)..."
 for i in $(seq 1 12); do
-  if curl -sf "http://$EC2_IP:3000/up" > /dev/null; then
-    echo "✅ backend起動確認OK: http://$EC2_IP:3000/up"
+  if ssh $SSH_OPTS "ec2-user@$EC2_IP" "curl -sf http://localhost:3000/up" > /dev/null 2>&1; then
+    echo "✅ backend起動確認OK(EC2内部からlocalhost:3000/upへ到達)"
     exit 0
   fi
   sleep 5
