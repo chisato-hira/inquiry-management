@@ -65,6 +65,9 @@ resource "aws_instance" "app" {
       sqlite-devel mariadb105-devel
 
     # --- Ruby 3.4.10 (rbenv経由、/opt配下にインストールしec2-userからも参照できるようにする) ---
+    # /tmpはtmpfs(メモリ上、約459MBしかない)でビルド中の作業ファイルが溢れるため、
+    # ディスク上の/var/tmpをビルド用の一時ディレクトリに指定する
+    export TMPDIR=/var/tmp
     export RBENV_ROOT="/opt/rbenv"
     git clone https://github.com/rbenv/rbenv.git "$RBENV_ROOT"
     git clone https://github.com/rbenv/ruby-build.git "$RBENV_ROOT/plugins/ruby-build"
