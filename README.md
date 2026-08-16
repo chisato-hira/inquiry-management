@@ -51,6 +51,7 @@ https://github.com/user-attachments/assets/a045d2f5-dfee-404c-874c-44212eb455bb
 | フロントエンド | Vue.js(Composition API) | 3.5.40 |
 | | TypeScript | 6.0.0 |
 | | Vite | 8.1.5 |
+| | Vue Router | 4.6.4 |
 | | Tailwind CSS | 4.3.3 |
 | | Chart.js | 4.5.1 |
 | バックエンド | Ruby on Rails(APIモード) | 8.1.3.1 |
@@ -72,9 +73,10 @@ inquiry-management/
 ├── frontend/           # Vue.js + TypeScript + Vite(ポート 5173)
 │   └── src/{components,composables,api,types,utils,views}
 ├── docker-compose.yml  # MySQL(ポート 3306)
-├── docs/               # 要件・設計ドキュメント
-└── terraform/          # AWSインフラ構成(EC2 + RDS、構築予定)
+└── docs/               # 要件・設計ドキュメント
 ```
+
+AWSインフラ構成(`terraform/`)は未着手。詳細は次項を参照。
 
 ## アーキテクチャ
 
