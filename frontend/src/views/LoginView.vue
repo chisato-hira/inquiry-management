@@ -27,10 +27,13 @@ async function handleSubmit() {
 <template>
   <div class="flex min-h-screen items-center justify-center bg-slate-50 p-6">
     <form
-      class="flex w-full max-w-sm flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+      class="flex w-full max-w-md flex-col gap-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
       @submit.prevent="handleSubmit"
     >
-      <h1 class="text-lg font-semibold text-slate-900">スタッフログイン</h1>
+      <div class="text-center">
+        <h1 class="text-xl font-bold text-slate-900 sm:text-2xl">問い合わせ管理システム</h1>
+        <p class="mt-1 text-sm text-slate-500">スタッフ専用ログイン</p>
+      </div>
 
       <p v-if="errorMessage" class="text-sm text-red-600">{{ errorMessage }}</p>
 
