@@ -14,7 +14,7 @@
 
 ### ログイン〜ボード画面(統計ダッシュボード・カンバン一覧)〜ログアウト
 
-https://github.com/user-attachments/assets/24341a19-1677-44f6-a38f-8473bc8b0eb8
+https://github.com/user-attachments/assets/afbc8817-00fa-44b3-ab44-00413a9609e5
 
 ### 問い合わせ詳細の確認・編集
 
