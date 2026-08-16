@@ -164,7 +164,7 @@ inquiry-management/
 │   ├── app/mailers/          # InquiryMailer（開発環境はletter_openerでブラウザプレビュー）
 │   └── config/database.yml   # MySQL接続設定（docker-composeのDBに接続）
 ├── frontend/           # Vue.js + TypeScript + Vite（ポート 5173）
-│   └── src/{components,composables,api,types,utils,views}
+│   └── src/{components,composables,api,router,types,utils,views,assets}
 │       # ログイン画面・問い合わせボード画面（一覧表示、ページネーション、優先度順/受付日時順ソート、
 │       # D&Dとプルダウンでのステータス変更、24時間経過強調、完了は直近30日のみ表示）・
 │       # 問い合わせ詳細モーダル（ステータス/優先度/担当者変更、対応履歴・コメント）・

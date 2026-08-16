@@ -92,6 +92,8 @@ erDiagram
 | idx_inquiries_status | inquiries | status | ステータス別の一覧取得の高速化 |
 | idx_inquiries_staff_id | inquiries | staff_id | 担当者別の集計・絞り込みの高速化 |
 | idx_inquiries_created_at | inquiries | created_at | 受付日時順の並び替え・経過時間判定の高速化 |
+| idx_inquiries_name | inquiries | name | 検索機能での名前検索の高速化 |
+| idx_inquiries_email | inquiries | email | 検索機能でのメール検索の高速化 |
 | idx_comments_inquiry_id | comments | inquiry_id | 特定の問い合わせに紐づく履歴・コメント取得の高速化 |
 
 ---
