@@ -22,8 +22,8 @@ cd backend && eval "$(rbenv init -)" && <command>
 
 コードを読みながら、以下の観点を必ず確認する。見つかった場合は「なぜ問題か」「実害が出るタイミング(例: 本番デプロイ時)」まで添えて報告する。まだ実装されていない機能(Issue履歴・CLAUDE.md・関連docsで「次のIssueで対応」と明記されているもの)を「未実装だから問題」として報告しない。
 
-- 設定ファイルの配置ミス(例: `.github/workflows/*.yml` や `.github/dependabot.yml` がサブディレクトリ(`backend/.github` 等)に置かれていて、リポジトリルートでないため実際には発火しない)
-- 環境変数化されていないハードコード値(例: フロントエンドの `API_BASE_URL` が `http://localhost:3000` 固定、バックエンドCORSの許可originが `http://localhost:5173` 固定など。本番AWS環境(`docs/aws-infrastructure.md`)へのデプロイ時に破綻する)
+- 環境変数・実行モードで切り替わるべき値がハードコードされていないか(例: フロントエンドの `API_BASE_URL` は本番ビルド(`import.meta.env.PROD`)で相対パスになるよう修正済み。同様の固定値が新たに紛れ込んでいないか確認する)
+- CORSの許可origin(`backend/config/initializers/cors.rb`)は開発時(`http://localhost:5173`)のみを想定した設定のままでよい(本番はnginxがフロントエンド・APIを同一オリジンで配信するためクロスオリジンにならない設計。この前提が崩れる変更(APIを別オリジンで公開する等)をした場合のみ本番originの追加を検討する)
 - セッションCookie認証を使っているのにCSRF対策(`protect_from_forgery`相当)が入っていない、など標準的なRailsのセキュリティプラクティスからの逸脱(現状GET中心で実害がなくても、書き込み系エンドポイントが増える前に指摘する)
 - CLAUDE.mdのセクション10(アーキテクチャ概要)が実装の進行に追従できているか(CLAUDE.md自身が「実装が進み次第追記する」と明記している)
 - その他、Rails/Vueのデファクトスタンダードからの逸脱(バリデーション・スコープ・命名規則など)
@@ -50,9 +50,23 @@ RAILS_ENV=test bin/rails test                # テスト(DBは docker compose up
 
 RuboCopの自動修正可能な指摘は `bundle exec rubocop -a` で直し、直後に再実行して0件になったこと・`bin/rails test` と `brakeman` がグリーンのままであることを確認してから報告する。
 
+**Terraform** (`terraform/` ディレクトリで実行):
+
+```bash
+terraform fmt -check -diff
+terraform validate
+```
+
+- `terraform fmt -check` が差分なしであること(フォーマット崩れがないか)
+- `terraform validate` がエラーなしであること(構文・参照エラーがないか)
+- セキュリティグループで `0.0.0.0/0` を許可しているポートがないか確認する(自分のIP等、必要最小限の範囲に絞られているか)
+- `variables.tf` で、パスワード等の機密情報を扱う変数(`db_password`)に `sensitive = true` が付与されているか
+- `.tfvars`・`.tfstate`・SSH秘密鍵などが `.gitignore` で除外されているか(`git status` で追跡対象に入っていないか確認)
+- EC2のCPUクレジットモード(`ec2.tf`の`credit_specification`)が `unlimited` のまま放置されていないか(クレジット超過分は無料枠外の課金対象になるため)
+
 ## ③ ドキュメントと実装の突合
 
-`docs/requirements.md`・`docs/functional-requirements.md`・`docs/screen-design.md`・`docs/database-design.md` を実装(モデルのバリデーション・スコープ、コントローラのレスポンス形状、フロントエンドの表示項目・ソート挙動・強調表示条件など)と突き合わせる。
+`docs/requirements.md`・`docs/functional-requirements.md`・`docs/screen-design.md`・`docs/database-design.md`・`docs/aws-infrastructure.md` を実装(モデルのバリデーション・スコープ、コントローラのレスポンス形状、フロントエンドの表示項目・ソート挙動・強調表示条件、`terraform/`配下の実際の構成など)と突き合わせる。
 
 - 差分があり、かつ「ドキュメントが正しく実装が間違っている」場合 → ドキュメントを正として実装を修正する
 - 差分があり、かつ「実装の方が正しくドキュメントが古いだけ」と判断できる場合 → 修正せず、判断理由を具体的に示して報告する(例: 仕様書にない追加インデックスがあるが実害がなく理にかなっている、等)。ユーザーが同意すればドキュメント側を実態に合わせて更新する(例: Issue #43で追加した「完了」変更時の担当者必須バリデーションをfunctional-requirements.mdに追記した、2026-08-14)
