@@ -29,6 +29,11 @@ resource "aws_instance" "app" {
   subnet_id              = aws_subnet.public_1a.id
   vpc_security_group_ids = [aws_security_group.ec2.id]
 
+  # --- CPUクレジットはstandard固定(unlimitedはクレジット超過分が無料枠外の追加課金対象になるため) ---
+  credit_specification {
+    cpu_credits = "standard"
+  }
+
   # --- ルートボリューム(AMIスナップショットが30GB以上を要求するため30GBに設定。無料枠上限と一致) ---
   root_block_device {
     volume_size = 30
