@@ -71,7 +71,7 @@ inquiry-management/
 │   │                          # InquiriesController, CommentsController, StatsController
 │   └── app/mailers/           # InquiryMailer(開発環境はletter_openerでブラウザプレビュー)
 ├── frontend/           # Vue.js + TypeScript + Vite(ポート 5173)
-│   └── src/{components,composables,api,types,utils,views}
+│   └── src/{components,composables,api,router,types,utils,views,assets}
 ├── docker-compose.yml  # MySQL(ポート 3306)
 └── docs/               # 要件・設計ドキュメント
 ```
@@ -134,7 +134,7 @@ PR作成時・mainへのpush時に、GitHub Actionsで以下を自動実行し�
 
 ## 開発フロー
 
-Issue作成 → ブランチ作成 → 実装 → 動作確認 → PR作成 → CI確認 → マージ、という流れを全ての変更(コードだけでなくドキュメントも含む)に例外なく適用している。本リポジトリはこのフローでIssue 40件・PR 52件を積み重ねてきた。
+Issue作成 → ブランチ作成 → 実装 → 動作確認 → PR作成 → CI確認 → マージ、という流れを全ての変更(コードだけでなくドキュメントも含む)に例外なく適用している。本リポジトリはこのフローでIssue 44件・PR 57件を積み重ねてきた。
 
 ## セットアップ
 
