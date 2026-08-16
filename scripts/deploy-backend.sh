@@ -30,14 +30,14 @@ BACKEND_DATABASE_PASSWORD=${DB_PASSWORD}
 SOLID_QUEUE_IN_PUMA=true
 EOF
 
-# --- 2. backendのソース一式をEC2へ転送(.git・log・tmp・storage・.bundleは除外) ---
+# --- 2. backendのソース一式をEC2へ転送(.git・log・tmp・storage・.bundleは除外)
+#     Amazon Linux 2023にrsyncが標準で入っていないため、tar+sshで転送する ---
 echo "==> backendをEC2へ転送中..."
-ssh $SSH_OPTS "ec2-user@$EC2_IP" "mkdir -p /opt/app/backend"
-rsync -az --delete \
-  --exclude='.git' --exclude='log/*' --exclude='tmp/*' \
-  --exclude='storage/*' --exclude='.bundle' --exclude='node_modules' \
-  -e "ssh $SSH_OPTS" \
-  "$BACKEND_DIR/" "ec2-user@$EC2_IP:/opt/app/backend/"
+ssh $SSH_OPTS "ec2-user@$EC2_IP" "rm -rf /opt/app/backend && mkdir -p /opt/app/backend"
+tar czf - -C "$BACKEND_DIR" \
+  --exclude='.git' --exclude='log' --exclude='tmp' \
+  --exclude='storage' --exclude='.bundle' --exclude='node_modules' \
+  . | ssh $SSH_OPTS "ec2-user@$EC2_IP" "tar xzf - -C /opt/app/backend"
 
 # --- 3. gem install(開発・テスト用gemは除外) ---
 echo "==> bundle installを実行中(初回は数分かかります)..."
