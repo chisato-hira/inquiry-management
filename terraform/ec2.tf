@@ -49,6 +49,14 @@ resource "aws_instance" "app" {
     set -ex
     dnf update -y
 
+    # --- スワップ領域を追加(t3.microはメモリ1GBしかなく、Rubyのソースビルド中にOOM Killerで
+    #     gccが強制終了する事象が発生したため。ビルド完了後も保持し、実行時のメモリ不足対策も兼ねる) ---
+    fallocate -l 2G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    echo '/swapfile swap swap defaults 0 0' >> /etc/fstab
+
     # --- 前提パッケージ・Rubyビルドに必要な開発ツール一式・MySQLクライアントライブラリ(mysql2 gemのビルド用) ---
     dnf groupinstall -y "Development Tools"
     dnf install -y unzip zip tar gzip nginx git \
@@ -62,6 +70,8 @@ resource "aws_instance" "app" {
     git clone https://github.com/rbenv/ruby-build.git "$RBENV_ROOT/plugins/ruby-build"
     export PATH="$RBENV_ROOT/bin:$PATH"
     eval "$(rbenv init -)"
+    # 並列ビルド(-j2)は1コアあたりのメモリ消費が増えOOMを誘発しやすいため、-j1に固定して安定性を優先する
+    export MAKE_OPTS="-j 1"
     RUBY_CONFIGURE_OPTS="--disable-install-doc" rbenv install 3.4.10
     rbenv global 3.4.10
     rbenv exec gem install bundler
