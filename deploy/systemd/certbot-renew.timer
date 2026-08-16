@@ -1,0 +1,10 @@
+[Unit]
+Description=1日2回、Let's Encrypt証明書の更新を試みる(Let's Encrypt公式推奨の頻度)
+
+[Timer]
+OnCalendar=*-*-* 00,12:00:00
+RandomizedDelaySec=3600
+Persistent=true
+
+[Install]
+WantedBy=timers.target
