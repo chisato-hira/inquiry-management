@@ -175,14 +175,14 @@ inquiry-management/
 └── docs/               # 要件・設計ドキュメント
 ```
 
-AWSインフラ構成（`terraform/`）は未着手。詳細は次項を参照。
+AWSインフラ構成（`terraform/`）は構築済み。VPC・EC2(t3.micro)・RDS(db.t4g.micro、MySQL)を作成し、`deploy/`配下のnginx conf・systemdユニットと`scripts/deploy-backend.sh` `scripts/deploy-frontend.sh`でRails/Vueを実際にデプロイしている。詳細は次項を参照。
 
 - `backend/` は `rails new backend --api --database=mysql` により作成した、API専用モードのRailsアプリ
 - staffs / inquiries / comments の migration・モデルは実装済み(Issue #11)
 - 参照系API(GET、検索含む)・書き込み系API(問い合わせ登録・ステータス/優先度/担当者更新・コメント投稿)・
   スタッフ認証(セッションCookie方式)・統計API・確認メール送信(letter_opener)まで一通り実装済み。
   フロントエンドもログイン・ボード・詳細モーダル・検索・顧客向けフォーム・統計ダッシュボードまで実装済み
-  (Issue #11〜#98)。デモ動画・設計ドキュメントの整備も完了。インフラ構築(Terraform/AWSデプロイ)は未着手
+  (Issue #11〜#98)。デモ動画・設計ドキュメントの整備、インフラ構築(Terraform/AWSデプロイ)も完了(Issue #102)
 
 ### APIエンドポイント一覧
 
