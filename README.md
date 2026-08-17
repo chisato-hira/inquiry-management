@@ -72,11 +72,14 @@ inquiry-management/
 │   └── app/mailers/           # InquiryMailer(開発環境はletter_openerでブラウザプレビュー)
 ├── frontend/           # Vue.js + TypeScript + Vite(ポート 5173)
 │   └── src/{components,composables,api,router,types,utils,views,assets}
+├── terraform/          # AWSインフラ構成(VPC・EC2・RDS)をTerraformで管理
+├── deploy/             # nginx conf・systemdユニット(EC2上に配置する設定)
+├── scripts/            # デプロイスクリプト(deploy-backend.sh / deploy-frontend.sh / setup-https.sh)
 ├── docker-compose.yml  # MySQL(ポート 3306)
 └── docs/               # 要件・設計ドキュメント
 ```
 
-AWSインフラ構成(`terraform/`)は未着手。詳細は次項を参照。
+AWSインフラ構成(`terraform/`)は構築済み。EC2+RDSで実際にデプロイし、HTTPS化まで完了している。詳細は次項を参照。
 
 ## アーキテクチャ
 
@@ -90,9 +93,9 @@ graph LR
     B --> C[(MySQL)]
 ```
 
-### インフラ構成(構築予定)
+### インフラ構成
 
-タスク管理アプリ(初級編)と同一のインフラ構成(EC2: t3.micro、RDS: db.t4g.micro)をTerraformで構築する方針。詳細は[AWSインフラ構成](docs/aws-infrastructure.md)を参照。
+タスク管理アプリ(初級編)と同一のインフラ構成(EC2: t3.micro、RDS: db.t4g.micro)をTerraformで構築し、DuckDNS + Let's EncryptによるHTTPS化まで実施している。詳細は[AWSインフラ構成](docs/aws-infrastructure.md)を参照。
 
 ## 品質管理
 
@@ -134,7 +137,7 @@ PR作成時・mainへのpush時に、GitHub Actionsで以下を自動実行し�
 
 ## 開発フロー
 
-Issue作成 → ブランチ作成 → 実装 → 動作確認 → PR作成 → CI確認 → マージ、という流れを全ての変更(コードだけでなくドキュメントも含む)に例外なく適用している。本リポジトリはこのフローでIssue 44件・PR 57件を積み重ねてきた。
+Issue作成 → ブランチ作成 → 実装 → 動作確認 → PR作成 → CI確認 → マージ、という流れを全ての変更(コードだけでなくドキュメントも含む)に例外なく適用している。本リポジトリはこのフローでIssue 49件・PR 62件を積み重ねてきた。
 
 ## セットアップ
 
